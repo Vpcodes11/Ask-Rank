@@ -29,6 +29,7 @@ const DB_FILE = path.join(DB_DIR, 'askrank.db.json');
 
 class DatabaseService {
   private data: DatabaseSchema;
+  private lastMtime: number = 0;
 
   constructor() {
     this.data = this.load();
@@ -41,6 +42,8 @@ class DatabaseService {
 
     if (fs.existsSync(DB_FILE)) {
       try {
+        const stats = fs.statSync(DB_FILE);
+        this.lastMtime = stats.mtimeMs;
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
         return JSON.parse(raw);
       } catch (err) {
@@ -53,11 +56,29 @@ class DatabaseService {
     return initial;
   }
 
+  private refresh(): void {
+    try {
+      if (fs.existsSync(DB_FILE)) {
+        const stats = fs.statSync(DB_FILE);
+        if (stats.mtimeMs > this.lastMtime) {
+          const raw = fs.readFileSync(DB_FILE, 'utf-8');
+          this.data = JSON.parse(raw);
+          this.lastMtime = stats.mtimeMs;
+        }
+      }
+    } catch (err) {
+      // ignore
+    }
+  }
+
   private saveData(data: DatabaseSchema): void {
     if (!fs.existsSync(DB_DIR)) {
       fs.mkdirSync(DB_DIR, { recursive: true });
     }
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    try {
+      this.lastMtime = fs.statSync(DB_FILE).mtimeMs;
+    } catch {}
   }
 
   public persist(): void {
@@ -66,20 +87,24 @@ class DatabaseService {
 
   // --- SCANS ---
   public getScans(): ScanRecord[] {
+    this.refresh();
     return this.data.scans;
   }
 
   public getScanById(id: string): ScanRecord | undefined {
+    this.refresh();
     return this.data.scans.find(s => s.id === id || s.share_slug === id);
   }
 
   public createScan(scan: ScanRecord): ScanRecord {
+    this.refresh();
     this.data.scans.unshift(scan);
     this.persist();
     return scan;
   }
 
   public updateScan(id: string, updates: Partial<ScanRecord>): ScanRecord | undefined {
+    this.refresh();
     const idx = this.data.scans.findIndex(s => s.id === id || s.share_slug === id);
     if (idx === -1) return undefined;
     this.data.scans[idx] = { ...this.data.scans[idx], ...updates };
@@ -89,20 +114,24 @@ class DatabaseService {
 
   // --- STORES ---
   public getStores(): StoreRecord[] {
+    this.refresh();
     return this.data.stores;
   }
 
   public getStoreById(id: string): StoreRecord | undefined {
+    this.refresh();
     return this.data.stores.find(s => s.id === id);
   }
 
   public createStore(store: StoreRecord): StoreRecord {
+    this.refresh();
     this.data.stores.unshift(store);
     this.persist();
     return store;
   }
 
   public updateStore(id: string, updates: Partial<StoreRecord>): StoreRecord | undefined {
+    this.refresh();
     const idx = this.data.stores.findIndex(s => s.id === id);
     if (idx === -1) return undefined;
     this.data.stores[idx] = { ...this.data.stores[idx], ...updates };
@@ -112,6 +141,7 @@ class DatabaseService {
 
   // --- PRODUCTS ---
   public getProducts(storeId?: string): ShopifyProduct[] {
+    this.refresh();
     if (storeId) {
       return this.data.products.filter(p => p.store_id === storeId);
     }
@@ -119,16 +149,19 @@ class DatabaseService {
   }
 
   public getProductById(id: string): ShopifyProduct | undefined {
+    this.refresh();
     return this.data.products.find(p => p.id === id);
   }
 
   public createProduct(product: ShopifyProduct): ShopifyProduct {
+    this.refresh();
     this.data.products.push(product);
     this.persist();
     return product;
   }
 
   public updateProduct(id: string, updates: Partial<ShopifyProduct>): ShopifyProduct | undefined {
+    this.refresh();
     const idx = this.data.products.findIndex(p => p.id === id);
     if (idx === -1) return undefined;
     this.data.products[idx] = { ...this.data.products[idx], ...updates };
@@ -138,20 +171,24 @@ class DatabaseService {
 
   // --- PROMPT SETS & RUNS ---
   public getPromptSets(storeId: string): PromptSetRecord[] {
+    this.refresh();
     return this.data.prompt_sets.filter(ps => ps.store_id === storeId);
   }
 
   public createPromptSet(promptSet: PromptSetRecord): PromptSetRecord {
+    this.refresh();
     this.data.prompt_sets.push(promptSet);
     this.persist();
     return promptSet;
   }
 
   public getPromptRuns(promptSetId: string): PromptRunResult[] {
+    this.refresh();
     return this.data.prompt_runs.filter(pr => pr.prompt_id.startsWith(promptSetId));
   }
 
   public createPromptRun(run: PromptRunResult): PromptRunResult {
+    this.refresh();
     this.data.prompt_runs.push(run);
     this.persist();
     return run;
@@ -159,6 +196,7 @@ class DatabaseService {
 
   // --- CONTENT SUGGESTIONS ---
   public getContentSuggestions(storeId?: string): ContentSuggestion[] {
+    this.refresh();
     if (storeId) {
       return this.data.content_suggestions.filter(c => c.store_id === storeId);
     }
@@ -166,6 +204,7 @@ class DatabaseService {
   }
 
   public updateContentSuggestion(id: string, updates: Partial<ContentSuggestion>): ContentSuggestion | undefined {
+    this.refresh();
     const idx = this.data.content_suggestions.findIndex(c => c.id === id);
     if (idx === -1) return undefined;
     this.data.content_suggestions[idx] = {
@@ -180,6 +219,7 @@ class DatabaseService {
   }
 
   public addContentSuggestion(suggestion: ContentSuggestion): ContentSuggestion {
+    this.refresh();
     this.data.content_suggestions.unshift(suggestion);
     this.persist();
     return suggestion;
@@ -187,6 +227,7 @@ class DatabaseService {
 
   // --- SUBSCRIPTIONS ---
   public getSubscriptions(storeId?: string): SubscriptionRecord[] {
+    this.refresh();
     if (storeId) {
       return this.data.subscriptions.filter(s => s.store_id === storeId);
     }
@@ -194,6 +235,7 @@ class DatabaseService {
   }
 
   public setSubscription(sub: SubscriptionRecord): SubscriptionRecord {
+    this.refresh();
     const idx = this.data.subscriptions.findIndex(s => s.store_id === sub.store_id);
     if (idx !== -1) {
       this.data.subscriptions[idx] = sub;
@@ -208,6 +250,7 @@ class DatabaseService {
 
   // --- CITATION OPPORTUNITIES ---
   public getCitationOpportunities(storeId?: string): CitationOpportunity[] {
+    this.refresh();
     if (storeId) {
       return this.data.citation_opportunities.filter(c => c.store_id === storeId);
     }
@@ -215,6 +258,7 @@ class DatabaseService {
   }
 
   public updateCitationOpportunity(id: string, updates: Partial<CitationOpportunity>): CitationOpportunity | undefined {
+    this.refresh();
     const idx = this.data.citation_opportunities.findIndex(c => c.id === id);
     if (idx === -1) return undefined;
     this.data.citation_opportunities[idx] = { ...this.data.citation_opportunities[idx], ...updates };
@@ -224,6 +268,7 @@ class DatabaseService {
 
   // --- TRACKING HISTORY ---
   public getTrackingHistory(storeId: string): TrackingPoint[] {
+    this.refresh();
     return this.data.tracking_history[storeId] || [
       { date: '4 Weeks Ago', overallScore: 28, perplexityScore: 22, chatgptScore: 25, geminiScore: 32, googleAioScore: 33 },
       { date: '3 Weeks Ago', overallScore: 35, perplexityScore: 30, chatgptScore: 32, geminiScore: 40, googleAioScore: 38 },
@@ -234,6 +279,7 @@ class DatabaseService {
   }
 
   public addTrackingPoint(storeId: string, point: TrackingPoint): void {
+    this.refresh();
     if (!this.data.tracking_history[storeId]) {
       this.data.tracking_history[storeId] = [];
     }

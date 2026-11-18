@@ -21,83 +21,43 @@ export default function CitationsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load pre-seeded citation opportunities
-    const defaultOpportunities: CitationOpportunity[] = [
-      {
-        id: 'cite-opp-1',
-        store_id: 'store-demo-blissclub',
-        domain: 'reddit.com/r/xxfitness',
-        url: 'https://reddit.com/r/xxfitness/comments/indian_activewear_reviews',
-        competitors_cited: ['Gymshark', 'Lululemon', 'Kica Active'],
-        citation_count: 14,
-        authority_score: 94,
-        opportunity_type: 'reddit_discussion',
-        pitch_angle: 'Participate in community comparison thread or host authentic founder AMA on fabric longevity and squat tests.',
-        action_status: 'open'
-      },
-      {
-        id: 'cite-opp-2',
-        store_id: 'store-demo-blissclub',
-        domain: 'vogue.in/fashion',
-        url: 'https://vogue.in/fashion/content/best-homegrown-indian-athleisure-brands',
-        competitors_cited: ['BlissClub', 'Kica', 'Cultsport'],
-        citation_count: 8,
-        authority_score: 88,
-        opportunity_type: 'editorial_roundup',
-        pitch_angle: 'Pitch Vogue fashion editor for upcoming "Monsoon Travel Essentials" editorial inclusion.',
-        action_status: 'in_progress'
-      },
-      {
-        id: 'cite-opp-3',
-        store_id: 'store-demo-blissclub',
-        domain: 'gqindia.com/fitness',
-        url: 'https://gqindia.com/look-good/fitness-gear-roundup',
-        competitors_cited: ['Nike', 'Under Armour', 'Gymshark'],
-        citation_count: 6,
-        authority_score: 85,
-        opportunity_type: 'editorial_roundup',
-        pitch_angle: 'Send performance sample kits to lifestyle reviewers testing high-impact moisture wicking.',
-        action_status: 'open'
-      },
-      {
-        id: 'cite-opp-4',
-        store_id: 'store-demo-blissclub',
-        domain: 'fitreviewhub.com',
-        url: 'https://fitreviewhub.com/reviews/best-squat-proof-leggings',
-        competitors_cited: ['Lululemon Align', 'Gymshark Flex'],
-        citation_count: 5,
-        authority_score: 62,
-        opportunity_type: 'comparison_review',
-        pitch_angle: 'Request dedicated product review with side-by-side opacity & pocket depth lab measurement.',
-        action_status: 'pitch_sent'
-      },
-      {
-        id: 'cite-opp-5',
-        store_id: 'store-demo-blissclub',
-        domain: 'nytimes.com/wirecutter',
-        url: 'https://nytimes.com/wirecutter/reviews/best-workout-leggings',
-        competitors_cited: ['Lululemon', 'Athleta', 'Outdoor Voices'],
-        citation_count: 18,
-        authority_score: 98,
-        opportunity_type: 'editorial_roundup',
-        pitch_angle: 'Target the Wirecutter apparel testing team with verified blind-feel swatch comparison.',
-        action_status: 'open'
+    async function loadOpportunities() {
+      try {
+        const res = await fetch('/api/citations');
+        const data = await res.json();
+        if (data.opportunities && data.opportunities.length > 0) {
+          setOpportunities(data.opportunities);
+        }
+      } catch (err) {
+        console.error('Failed to load citation opportunities:', err);
+      } finally {
+        setLoading(false);
       }
-    ];
-
-    setOpportunities(defaultOpportunities);
-    setLoading(false);
+    }
+    loadOpportunities();
   }, []);
 
-  const handleToggleStatus = (id: string) => {
-    setOpportunities(prev => prev.map(o => {
-      if (o.id !== id) return o;
-      const next: CitationOpportunity['action_status'] =
-        o.action_status === 'open' ? 'in_progress' :
-        o.action_status === 'in_progress' ? 'pitch_sent' :
-        o.action_status === 'pitch_sent' ? 'won' : 'open';
-      return { ...o, action_status: next };
-    }));
+  const handleToggleStatus = async (id: string) => {
+    const opp = opportunities.find(o => o.id === id);
+    if (!opp) return;
+
+    const next: CitationOpportunity['action_status'] =
+      opp.action_status === 'open' ? 'in_progress' :
+      opp.action_status === 'in_progress' ? 'pitch_sent' :
+      opp.action_status === 'pitch_sent' ? 'won' : 'open';
+
+    // Optimistic UI update
+    setOpportunities(prev => prev.map(o => o.id === id ? { ...o, action_status: next } : o));
+
+    try {
+      await fetch('/api/citations', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, action_status: next })
+      });
+    } catch (err) {
+      console.error('Failed to persist citation status update:', err);
+    }
   };
 
   if (loading) {

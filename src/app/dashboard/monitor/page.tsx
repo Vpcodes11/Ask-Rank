@@ -188,8 +188,8 @@ export default function WeeklyMonitorPage() {
 
         <div className="p-5 rounded-xl bg-slate-950 border border-slate-800/80 font-sans text-xs space-y-3">
           <div className="border-b border-slate-800 pb-3">
-            <div className="text-slate-400">Subject: <strong className="text-white">Weekly AskRank Report: BlissClub Activewear AI Visibility Score jumped to {currentScore}/100! 🚀</strong></div>
-            <div className="text-slate-500 text-[11px] mt-0.5">To: founder@blissclub.com • Automated Delivery</div>
+            <div className="text-slate-400">Subject: <strong className="text-white">{emailDigest?.subject || `Weekly AskRank Report: BlissClub Activewear AI Visibility Score jumped to ${currentScore}/100! 🚀`}</strong></div>
+            <div className="text-slate-500 text-[11px] mt-0.5">To: founder@blissclub.com • Automated Delivery (Every Monday)</div>
           </div>
 
           <p className="text-slate-300 leading-relaxed">
@@ -199,10 +199,18 @@ export default function WeeklyMonitorPage() {
           <div className="p-3.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 space-y-1.5 text-slate-200">
             <div className="font-bold text-emerald-400">Key Wins This Week:</div>
             <ul className="list-disc list-inside space-y-1 text-slate-300">
-              <li>Overall AI Visibility Score: <strong>{currentScore}/100</strong> (+{totalGain} points all-time)</li>
-              <li>Perplexity Sonar now cites your store in <strong>78%</strong> of high-intent activewear searches</li>
-              <li>ChatGPT Search recommends your flare pants over Gymshark in 3 high-volume commercial queries</li>
-              <li>New Reddit discussion citation detected on r/xxfitness</li>
+              {emailDigest?.highlights ? (
+                emailDigest.highlights.map((h: string, idx: number) => (
+                  <li key={idx}>{h}</li>
+                ))
+              ) : (
+                <>
+                  <li>Overall AI Visibility Score: <strong>{currentScore}/100</strong> (+{totalGain} points all-time)</li>
+                  <li>Perplexity Sonar now cites your store in <strong>78%</strong> of high-intent activewear searches</li>
+                  <li>ChatGPT Search recommends your flare pants over Gymshark in 3 high-volume commercial queries</li>
+                  <li>New Reddit discussion citation detected on r/xxfitness</li>
+                </>
+              )}
             </ul>
           </div>
 

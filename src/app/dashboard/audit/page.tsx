@@ -60,101 +60,20 @@ export default function DeepAuditPage() {
   // Fetch product list for current store
   useEffect(() => {
     if (!store) return;
-    // Mock products for UI
-    const defaultProducts: ShopifyProduct[] = [
-      {
-        id: 'prod-bliss-1',
-        store_id: store.id,
-        shopify_product_id: 'gid://shopify/Product/8472910291',
-        title: 'The Ultimate Flare Pants with Deep Pockets',
-        handle: 'the-ultimate-flare-pants',
-        description: 'Super soft, buttery fabric. Great for yoga and relaxing at home.',
-        price: '1999',
-        image_url: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&auto=format&fit=crop&q=80',
-        tags: ['flare pants', 'yoga', 'loungewear', 'pockets', 'activewear'],
-        schema_data: {
-          has_product_schema: true,
-          has_offer_schema: true,
-          has_aggregate_rating: false,
-          rating_valid: false,
-          rating_warning: 'Missing verified reviewCount. Adding false ratings causes AI crawler penalties.',
-          has_org_schema: true,
-          has_faq_schema: false,
-        },
-        content_gap_score: 72,
-        content_gaps: {
-          missing_specs: true,
-          missing_use_cases: true,
-          missing_comparisons: true,
-          missing_materials: false,
-          missing_sizing: true,
-          missing_faqs: true,
-        },
-        created_at: new Date().toISOString()
-      },
-      {
-        id: 'prod-bliss-2',
-        store_id: store.id,
-        shopify_product_id: 'gid://shopify/Product/8472910292',
-        title: 'MoveFree High-Impact Running Sports Bra',
-        handle: 'movefree-high-impact-bra',
-        description: 'Padded running sports bra. Moisture wicking.',
-        price: '1499',
-        image_url: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&auto=format&fit=crop&q=80',
-        tags: ['sports bra', 'running', 'high impact'],
-        schema_data: {
-          has_product_schema: true,
-          has_offer_schema: true,
-          has_aggregate_rating: true,
-          rating_valid: true,
-          has_org_schema: true,
-          has_faq_schema: false,
-        },
-        content_gap_score: 58,
-        content_gaps: {
-          missing_specs: true,
-          missing_use_cases: false,
-          missing_comparisons: true,
-          missing_materials: false,
-          missing_sizing: true,
-          missing_faqs: true,
-        },
-        created_at: new Date().toISOString()
-      },
-      {
-        id: 'prod-bliss-3',
-        store_id: store.id,
-        shopify_product_id: 'gid://shopify/Product/8472910293',
-        title: 'AirMesh Cooling Workout Tank Top',
-        handle: 'airmesh-cooling-tank',
-        description: 'Lightweight sleeveless top for workouts.',
-        price: '899',
-        image_url: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=600&auto=format&fit=crop&q=80',
-        tags: ['tank', 'cooling', 'gym'],
-        schema_data: {
-          has_product_schema: false,
-          has_offer_schema: false,
-          has_aggregate_rating: false,
-          rating_valid: false,
-          rating_warning: 'No Schema.org Product markup detected. Search bots treat as unstructured plain text.',
-          has_org_schema: false,
-          has_faq_schema: false,
-        },
-        content_gap_score: 85,
-        content_gaps: {
-          missing_specs: true,
-          missing_use_cases: true,
-          missing_comparisons: true,
-          missing_materials: true,
-          missing_sizing: true,
-          missing_faqs: true,
-        },
-        created_at: new Date().toISOString()
+    const storeId = store.id;
+    async function loadProducts() {
+      try {
+        const res = await fetch(`/api/products?store_id=${storeId}`);
+        const data = await res.json();
+        if (data.products && data.products.length > 0) {
+          setProducts(data.products);
+          setSelectedProduct(data.products[0]);
+        }
+      } catch (err) {
+        console.error('Failed to load products for store:', err);
       }
-    ];
-
-    setProducts(defaultProducts);
-    setSelectedProduct(defaultProducts[0]);
+    }
+    loadProducts();
   }, [store]);
 
   if (loading || !store) {
