@@ -28,7 +28,8 @@ import {
   Eye,
   Store,
   Layers3,
-  Cloud
+  Cloud,
+  Compass
 } from 'lucide-react';
 import PricingTable from '@/components/PricingTable';
 
@@ -39,6 +40,14 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [scanStep, setScanStep] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Scenic Vista Background Switcher
+  const scenicThemes = [
+    { id: 'alpine', label: 'Alpine Vista', image: '/images/alpine-observatory.jpg', icon: '🏔️' },
+    { id: 'coastal', label: 'Coastal Dawn', image: '/images/coastal-lounge.jpg', icon: '🌊' },
+    { id: 'studio', label: 'Glasshouse Studio', image: '/images/studio-glasshouse.jpg', icon: '🌿' },
+  ];
+  const [selectedTheme, setSelectedTheme] = useState(scenicThemes[0]);
 
   const sampleStores = [
     { label: 'BlissClub', url: 'blissclub.com', niche: 'Women\'s Activewear' },
@@ -99,21 +108,21 @@ export default function HomePage() {
     <div className="min-h-screen bg-[#070b14] text-slate-100 selection:bg-emerald-400 selection:text-black">
 
       {/* ========================================================= */}
-      {/* HERO SECTION: Scenic Train Panoramic Window (Railroad.ai) */}
+      {/* HERO SECTION: Scenic Architectural Glass Portal           */}
       {/* ========================================================= */}
-      <section className="relative w-full min-h-[92vh] flex flex-col justify-between overflow-hidden">
+      <section className="relative w-full min-h-[94vh] flex flex-col justify-between overflow-hidden">
         
-        {/* Background Image: High-res Scenic Observation Train Carriage */}
+        {/* Dynamic High-Resolution Scenic Vista Background */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0 transform scale-[1.01]"
-          style={{ backgroundImage: `url('/images/train-window-hero.jpg')` }}
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0 transition-all duration-1000 transform scale-[1.01]"
+          style={{ backgroundImage: `url('${selectedTheme.image}')` }}
         >
-          {/* Subtle gradient overlay to enhance text contrast and glass reflections */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/60 pointer-events-none" />
+          {/* Subtle natural exposure gradient for optimal text contrast */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60 pointer-events-none" />
         </div>
 
         {/* --------------------------------------------------------- */}
-        {/* TOP FLOATING NAVIGATION (Inside the train window)          */}
+        {/* TOP FLOATING NAVIGATION (Inside the scenic portal)         */}
         {/* --------------------------------------------------------- */}
         <header className="relative z-20 max-w-7xl w-full mx-auto px-4 sm:px-8 pt-6 sm:pt-8 flex items-center justify-between">
           
@@ -130,7 +139,7 @@ export default function HomePage() {
           </Link>
 
           {/* Centered Translucent Pill Navbar */}
-          <nav className="hidden md:flex items-center gap-1.5 px-4 py-1.5 rounded-full railroad-nav-pill text-xs font-medium text-white/90 shadow-lg backdrop-blur-xl">
+          <nav className="hidden md:flex items-center gap-1 px-4 py-1.5 rounded-full railroad-nav-pill text-xs font-medium text-white/90 shadow-lg backdrop-blur-xl">
             <a href="#how-it-works" className="px-3 py-1 hover:text-white transition-colors">How it works?</a>
             <a href="#difference" className="px-3 py-1 hover:text-white transition-colors">The Difference</a>
             <Link href="/pricing" className="px-3 py-1 hover:text-white transition-colors">Pricing</Link>
@@ -150,9 +159,9 @@ export default function HomePage() {
         </header>
 
         {/* --------------------------------------------------------- */}
-        {/* MAIN HERO CONTENT: Centered directly over the sunny vista  */}
+        {/* MAIN HERO CONTENT: Centered directly over the vista        */}
         {/* --------------------------------------------------------- */}
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 my-auto text-center py-10 sm:py-16">
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 my-auto text-center py-12 sm:py-16">
           
           {/* Centered Pill Tag */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full railroad-nav-pill text-white/90 text-xs font-medium mb-6 shadow-sm backdrop-blur-md">
@@ -222,13 +231,39 @@ export default function HomePage() {
 
         </div>
 
-        {/* Bottom Ambient Window Ledge & Indicators */}
-        <div className="relative z-10 w-full py-4 text-center text-[11px] text-white/70 flex items-center justify-center gap-6 backdrop-blur-xs">
-          <span>100% Free Scan</span>
-          <span>•</span>
-          <span>No Credit Card Required</span>
-          <span>•</span>
-          <span>Multi-Engine Search Grounding</span>
+        {/* --------------------------------------------------------- */}
+        {/* BOTTOM BAR: Trust Indicators & Scenic Theme Switcher       */}
+        {/* --------------------------------------------------------- */}
+        <div className="relative z-10 w-full py-4 px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-white/75 backdrop-blur-xs">
+          
+          <div className="flex items-center gap-4 sm:gap-6">
+            <span>100% Free Scan</span>
+            <span>•</span>
+            <span>No Credit Card Required</span>
+            <span>•</span>
+            <span>Multi-Engine Search Grounding</span>
+          </div>
+
+          {/* Scenic Vista Switcher Pill */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full railroad-nav-pill border border-white/30 text-white/90">
+            <span className="text-[10px] text-white/60 mr-1 flex items-center gap-1">
+              <Compass className="w-3 h-3" /> View:
+            </span>
+            {scenicThemes.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setSelectedTheme(t)}
+                className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium transition-all ${
+                  selectedTheme.id === t.id
+                    ? 'bg-white text-slate-950 font-bold shadow-xs'
+                    : 'hover:text-white text-white/70'
+                }`}
+              >
+                <span>{t.icon} {t.label}</span>
+              </button>
+            ))}
+          </div>
+
         </div>
 
       </section>
