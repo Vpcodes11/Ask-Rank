@@ -3,6 +3,8 @@ import { db } from '@/lib/db';
 import { SubscriptionRecord } from '@/lib/types';
 import { PRICING_PLANS } from '@/lib/pricing';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const storeId = searchParams.get('store_id') || 'store-demo-blissclub';

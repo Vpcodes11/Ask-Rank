@@ -4,6 +4,8 @@ import { StoreRecord, ShopifyProduct } from '@/lib/types';
 import { fetchStorePublicData } from '@/lib/store-fetcher';
 import { auditProductStructuredData, detectContentGaps } from '@/lib/audit-engine';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const stores = db.getStores();
   return NextResponse.json({ success: true, stores });
