@@ -20,6 +20,10 @@ export default function Navbar() {
   const pathname = usePathname();
   const [currency, setCurrency] = useState<'INR' | 'USD'>('INR');
 
+  if (pathname === '/') {
+    return null; // Homepage uses the panoramic in-window Railroad.ai navigation
+  }
+
   const navLinks = [
     { href: '/', label: 'Free Scan', icon: Search },
     { href: '/dashboard/audit', label: 'Deep Audit', icon: FileCheck2 },
