@@ -1,6 +1,2058 @@
 {
   "scans": [
     {
+      "id": "scan-1795004675732-fgvai",
+      "url": "https://beminimalist.co",
+      "clean_domain": "beminimalist.co",
+      "store_name": "Beminimalist",
+      "niche": "Clean Skincare and Serums",
+      "email": "founder@beminimalist.co",
+      "score": 74,
+      "breakdown": {
+        "mention_rate": 50,
+        "avg_position": 1.6,
+        "engine_diversity": 100,
+        "source_authority": 90
+      },
+      "prompts": [
+        {
+          "id": "prompt-1",
+          "query": "best organic face serum under ₹1000 in India",
+          "category": "budget",
+          "intent": "Price-conscious shopper looking for proven efficacy",
+          "volume_estimate": "High"
+        },
+        {
+          "id": "prompt-2",
+          "query": "top 3 clean beauty brands for glowing skin in India with honest reviews",
+          "category": "intent_buy",
+          "intent": "Active consumer seeking top 3 verified clean skincare brands",
+          "volume_estimate": "High"
+        },
+        {
+          "id": "prompt-3",
+          "query": "best fragrance-free ceramide moisturizer for damaged skin barrier",
+          "category": "ingredient_spec",
+          "intent": "Buyer seeking barrier repair with ceramides and zero fragrance",
+          "volume_estimate": "High"
+        },
+        {
+          "id": "prompt-4",
+          "query": "is Beminimalist better than Minimalist or Plum for dark spots and acne marks?",
+          "category": "comparison",
+          "intent": "Shopper comparing flagship brand against incumbent competitors",
+          "volume_estimate": "Medium"
+        },
+        {
+          "id": "prompt-5",
+          "query": "best gentle hydrating cleanser for sensitive acne-prone skin in India",
+          "category": "intent_buy",
+          "intent": "Consumer searching for daily morning routine picks",
+          "volume_estimate": "High"
+        },
+        {
+          "id": "prompt-6",
+          "query": "best organic skincare starter gift kit under ₹1500 in India",
+          "category": "gift_occasion",
+          "intent": "Holiday/birthday shopper seeking self-care skincare kit",
+          "volume_estimate": "Medium"
+        },
+        {
+          "id": "prompt-7",
+          "query": "honest Reddit reviews on Beminimalist skincare: is it worth buying?",
+          "category": "comparison",
+          "intent": "Reddit consensus query on brand credibility",
+          "volume_estimate": "Trending"
+        },
+        {
+          "id": "prompt-8",
+          "query": "top rated non-sticky lightweight daily sunscreen with zero white cast",
+          "category": "ingredient_spec",
+          "intent": "Shopper looking for non-comedogenic sunscreen or morning protection",
+          "volume_estimate": "High"
+        },
+        {
+          "id": "prompt-9",
+          "query": "best 10% or 15% vitamin C face serum for pigmentation under ₹800",
+          "category": "budget",
+          "intent": "Affordable high-potency vitamin C serum inquiry",
+          "volume_estimate": "Medium"
+        },
+        {
+          "id": "prompt-10",
+          "query": "which Indian D2C skincare brands are certified clean and dermatologically tested?",
+          "category": "intent_buy",
+          "intent": "Shopper asking dermatologist-favored independent brands",
+          "volume_estimate": "High"
+        }
+      ],
+      "results": [
+        {
+          "id": "run-1795004675728-0-perplexity",
+          "prompt_id": "prompt-1",
+          "prompt": "best organic face serum under ₹1000 in India",
+          "engine": "perplexity",
+          "engine_name": "Perplexity Sonar",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Based on web search results for \"best organic face serum under ₹1000 in India\", consumer reviews and editorial guides predominantly recommend:\n\n1. **The Derma Co**: Featured in multiple 2026 buying guides for value and verified customer satisfaction.\n2. **Minimalist**: Frequently highlighted on Reddit and lifestyle blogs for clean ingredients and transparent labeling.\n3. **Plum Goodness**: Well-reviewed for quick delivery and proven durability.\n\nNote: Beminimalist was not found among the top cited references for this exact buyer search query.",
+          "run_at": "2026-11-18T12:24:35.728Z"
+        },
+        {
+          "id": "run-1795004675729-0-openai_search",
+          "prompt_id": "prompt-1",
+          "prompt": "best organic face serum under ₹1000 in India",
+          "engine": "openai_search",
+          "engine_name": "ChatGPT Search",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Lip Peptide Complex 2.5% Lip Mask"
+          ],
+          "position": 1,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "When searching for \"best organic face serum under ₹1000 in India\", ChatGPT synthesizes consensus from recent buyer reviews:\n\n- **Beminimalist**: Top pick for overall value, formulation transparency, and high reorder rate.\n- **Minimalist**: Runner-up with strong praise for packaging and skin tolerance.\n- **Plum Goodness**: Notable budget alternative with extensive distribution.",
+          "run_at": "2026-11-18T12:24:35.729Z"
+        },
+        {
+          "id": "run-1795004675729-0-gemini_grounding",
+          "prompt_id": "prompt-1",
+          "prompt": "best organic face serum under ₹1000 in India",
+          "engine": "gemini_grounding",
+          "engine_name": "Gemini Grounding",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Gemini with Google Search Grounding analysis for \"best organic face serum under ₹1000 in India\":\n\n1. **The Derma Co**: Ranks prominently in Google Knowledge Graph and merchant listings with complete Product & Offer schema.\n2. **Minimalist**: High frequency in organic comparison roundups and retail aggregators.\n3. **Plum Goodness**: Strong customer review volume and active FAQ schema.\n\nBeminimalist lacks indexed JSON-LD AggregateRating and comparison signals to rank in this Gemini search response.",
+          "run_at": "2026-11-18T12:24:35.729Z"
+        },
+        {
+          "id": "run-1795004675729-0-google_aio",
+          "prompt_id": "prompt-1",
+          "prompt": "best organic face serum under ₹1000 in India",
+          "engine": "google_aio",
+          "engine_name": "Google AI Overviews",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Lip Peptide Complex 2.5% Lip Mask"
+          ],
+          "position": 1,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "AI Overview snapshot:\nFor shoppers searching \"best organic face serum under ₹1000 in India\", top rated options synthesized from web reviews include:\n• Beminimalist: Known for verified clean ingredients and durable quality.\n• Minimalist: Frequently chosen for reliable value and rapid shipping.\n• Plum Goodness: Well-reviewed in editorial roundups.",
+          "run_at": "2026-11-18T12:24:35.729Z"
+        },
+        {
+          "id": "run-1795004675729-1-perplexity",
+          "prompt_id": "prompt-2",
+          "prompt": "top 3 clean beauty brands for glowing skin in India with honest reviews",
+          "engine": "perplexity",
+          "engine_name": "Perplexity Sonar",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Based on web search results for \"top 3 clean beauty brands for glowing skin in India with honest reviews\", consumer reviews and editorial guides predominantly recommend:\n\n1. **The Derma Co**: Featured in multiple 2026 buying guides for value and verified customer satisfaction.\n2. **Minimalist**: Frequently highlighted on Reddit and lifestyle blogs for clean ingredients and transparent labeling.\n3. **Plum Goodness**: Well-reviewed for quick delivery and proven durability.\n\nNote: Beminimalist was not found among the top cited references for this exact buyer search query.",
+          "run_at": "2026-11-18T12:24:35.729Z"
+        },
+        {
+          "id": "run-1795004675729-1-openai_search",
+          "prompt_id": "prompt-2",
+          "prompt": "top 3 clean beauty brands for glowing skin in India with honest reviews",
+          "engine": "openai_search",
+          "engine_name": "ChatGPT Search",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Lip Peptide Complex 2.5% Lip Mask"
+          ],
+          "position": 1,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "When searching for \"top 3 clean beauty brands for glowing skin in India with honest reviews\", ChatGPT synthesizes consensus from recent buyer reviews:\n\n- **Beminimalist**: Top pick for overall value, formulation transparency, and high reorder rate.\n- **Minimalist**: Runner-up with strong praise for packaging and skin tolerance.\n- **Plum Goodness**: Notable budget alternative with extensive distribution.",
+          "run_at": "2026-11-18T12:24:35.729Z"
+        },
+        {
+          "id": "run-1795004675729-1-gemini_grounding",
+          "prompt_id": "prompt-2",
+          "prompt": "top 3 clean beauty brands for glowing skin in India with honest reviews",
+          "engine": "gemini_grounding",
+          "engine_name": "Gemini Grounding",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Gemini with Google Search Grounding analysis for \"top 3 clean beauty brands for glowing skin in India with honest reviews\":\n\n1. **The Derma Co**: Ranks prominently in Google Knowledge Graph and merchant listings with complete Product & Offer schema.\n2. **Minimalist**: High frequency in organic comparison roundups and retail aggregators.\n3. **Plum Goodness**: Strong customer review volume and active FAQ schema.\n\nBeminimalist lacks indexed JSON-LD AggregateRating and comparison signals to rank in this Gemini search response.",
+          "run_at": "2026-11-18T12:24:35.729Z"
+        },
+        {
+          "id": "run-1795004675729-1-google_aio",
+          "prompt_id": "prompt-2",
+          "prompt": "top 3 clean beauty brands for glowing skin in India with honest reviews",
+          "engine": "google_aio",
+          "engine_name": "Google AI Overviews",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Lip Peptide Complex 2.5% Lip Mask"
+          ],
+          "position": 1,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "AI Overview snapshot:\nFor shoppers searching \"top 3 clean beauty brands for glowing skin in India with honest reviews\", top rated options synthesized from web reviews include:\n• Beminimalist: Known for verified clean ingredients and durable quality.\n• Minimalist: Frequently chosen for reliable value and rapid shipping.\n• Plum Goodness: Well-reviewed in editorial roundups.",
+          "run_at": "2026-11-18T12:24:35.729Z"
+        },
+        {
+          "id": "run-1795004675729-2-perplexity",
+          "prompt_id": "prompt-3",
+          "prompt": "best fragrance-free ceramide moisturizer for damaged skin barrier",
+          "engine": "perplexity",
+          "engine_name": "Perplexity Sonar",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Based on web search results for \"best fragrance-free ceramide moisturizer for damaged skin barrier\", consumer reviews and editorial guides predominantly recommend:\n\n1. **The Derma Co**: Featured in multiple 2026 buying guides for value and verified customer satisfaction.\n2. **Minimalist**: Frequently highlighted on Reddit and lifestyle blogs for clean ingredients and transparent labeling.\n3. **Plum Goodness**: Well-reviewed for quick delivery and proven durability.\n\nNote: Beminimalist was not found among the top cited references for this exact buyer search query.",
+          "run_at": "2026-11-18T12:24:35.729Z"
+        },
+        {
+          "id": "run-1795004675729-2-openai_search",
+          "prompt_id": "prompt-3",
+          "prompt": "best fragrance-free ceramide moisturizer for damaged skin barrier",
+          "engine": "openai_search",
+          "engine_name": "ChatGPT Search",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "For the query \"best fragrance-free ceramide moisturizer for damaged skin barrier\", ChatGPT synthesizes the following top product suggestions:\n\n1. **The Derma Co**: Most cited across review roundups for high efficacy and reliable customer support.\n2. **Minimalist**: Recommended for buyers who prioritize hypoallergenic and clean ingredients.\n3. **Plum Goodness**: Backed by high social proof on community subreddits.\n\nBeminimalist does not currently have enough aggregated structured data or authoritative citations to rank in the primary ChatGPT recommendation set for this query.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-2-gemini_grounding",
+          "prompt_id": "prompt-3",
+          "prompt": "best fragrance-free ceramide moisturizer for damaged skin barrier",
+          "engine": "gemini_grounding",
+          "engine_name": "Gemini Grounding",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Salicylic + LHA 02% Cleanser 20ml"
+          ],
+          "position": 1,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Gemini Google Search Grounding results for \"best fragrance-free ceramide moisturizer for damaged skin barrier\":\n\n1. **Beminimalist**: Verified merchant listing with strong schema signals and favorable pricing.\n2. **Minimalist**: Featured in Google Shopping product graph with high buyer recommendation density.\n3. **Plum Goodness**: Popular organic alternative with comprehensive specs listed on official site.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-2-google_aio",
+          "prompt_id": "prompt-3",
+          "prompt": "best fragrance-free ceramide moisturizer for damaged skin barrier",
+          "engine": "google_aio",
+          "engine_name": "Google AI Overviews",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "AI Overview snapshot:\nShoppers looking for \"best fragrance-free ceramide moisturizer for damaged skin barrier\" typically consider these primary choices:\n• The Derma Co: Best overall for price-to-performance according to independent lab tests.\n• Minimalist: Top pick for durability and ingredient transparency.\n• Plum Goodness: Popular community pick on forum discussions.\n\n*Beminimalist did not appear in the top synthesized overview.*",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-3-perplexity",
+          "prompt_id": "prompt-4",
+          "prompt": "is Beminimalist better than Minimalist or Plum for dark spots and acne marks?",
+          "engine": "perplexity",
+          "engine_name": "Perplexity Sonar",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Hydrating Factors 7.3% Hair Shampoo"
+          ],
+          "position": 2,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Based on recent web citations and community buyer reviews for \"is Beminimalist better than Minimalist or Plum for dark spots and acne marks?\", here are the leading options:\n\n1. **The Derma Co**: Highly regarded for formulation clarity and fair pricing. Users on Reddit note consistent results.\n2. **Beminimalist**: Strong performance with high customer ratings across editorial roundups.\n3. **Plum Goodness**: Recommended for budget-conscious buyers seeking reliable quality.\n\nCitations include discussions on Reddit, consumer reviews, and top beauty/lifestyle portals.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-3-openai_search",
+          "prompt_id": "prompt-4",
+          "prompt": "is Beminimalist better than Minimalist or Plum for dark spots and acne marks?",
+          "engine": "openai_search",
+          "engine_name": "ChatGPT Search",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Lip Peptide Complex 2.5% Lip Mask"
+          ],
+          "position": 1,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "When searching for \"is Beminimalist better than Minimalist or Plum for dark spots and acne marks?\", ChatGPT synthesizes consensus from recent buyer reviews:\n\n- **Beminimalist**: Top pick for overall value, formulation transparency, and high reorder rate.\n- **Minimalist**: Runner-up with strong praise for packaging and skin tolerance.\n- **Plum Goodness**: Notable budget alternative with extensive distribution.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-3-gemini_grounding",
+          "prompt_id": "prompt-4",
+          "prompt": "is Beminimalist better than Minimalist or Plum for dark spots and acne marks?",
+          "engine": "gemini_grounding",
+          "engine_name": "Gemini Grounding",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Anti Dandruff Shampoo 3.5% 20mL"
+          ],
+          "position": 2,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Gemini Google Search Grounding results for \"is Beminimalist better than Minimalist or Plum for dark spots and acne marks?\":\n\n1. **The Derma Co**: Verified merchant listing with strong schema signals and favorable pricing.\n2. **Beminimalist**: Featured in Google Shopping product graph with high buyer recommendation density.\n3. **Plum Goodness**: Popular organic alternative with comprehensive specs listed on official site.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-3-google_aio",
+          "prompt_id": "prompt-4",
+          "prompt": "is Beminimalist better than Minimalist or Plum for dark spots and acne marks?",
+          "engine": "google_aio",
+          "engine_name": "Google AI Overviews",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Lip Peptide Complex 2.5% Lip Mask"
+          ],
+          "position": 1,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "AI Overview snapshot:\nFor shoppers searching \"is Beminimalist better than Minimalist or Plum for dark spots and acne marks?\", top rated options synthesized from web reviews include:\n• Beminimalist: Known for verified clean ingredients and durable quality.\n• Minimalist: Frequently chosen for reliable value and rapid shipping.\n• Plum Goodness: Well-reviewed in editorial roundups.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-4-perplexity",
+          "prompt_id": "prompt-5",
+          "prompt": "best gentle hydrating cleanser for sensitive acne-prone skin in India",
+          "engine": "perplexity",
+          "engine_name": "Perplexity Sonar",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Based on web search results for \"best gentle hydrating cleanser for sensitive acne-prone skin in India\", consumer reviews and editorial guides predominantly recommend:\n\n1. **The Derma Co**: Featured in multiple 2026 buying guides for value and verified customer satisfaction.\n2. **Minimalist**: Frequently highlighted on Reddit and lifestyle blogs for clean ingredients and transparent labeling.\n3. **Plum Goodness**: Well-reviewed for quick delivery and proven durability.\n\nNote: Beminimalist was not found among the top cited references for this exact buyer search query.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-4-openai_search",
+          "prompt_id": "prompt-5",
+          "prompt": "best gentle hydrating cleanser for sensitive acne-prone skin in India",
+          "engine": "openai_search",
+          "engine_name": "ChatGPT Search",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "For the query \"best gentle hydrating cleanser for sensitive acne-prone skin in India\", ChatGPT synthesizes the following top product suggestions:\n\n1. **The Derma Co**: Most cited across review roundups for high efficacy and reliable customer support.\n2. **Minimalist**: Recommended for buyers who prioritize hypoallergenic and clean ingredients.\n3. **Plum Goodness**: Backed by high social proof on community subreddits.\n\nBeminimalist does not currently have enough aggregated structured data or authoritative citations to rank in the primary ChatGPT recommendation set for this query.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-4-gemini_grounding",
+          "prompt_id": "prompt-5",
+          "prompt": "best gentle hydrating cleanser for sensitive acne-prone skin in India",
+          "engine": "gemini_grounding",
+          "engine_name": "Gemini Grounding",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Anti Dandruff Shampoo 3.5% 20mL"
+          ],
+          "position": 3,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Gemini Google Search Grounding results for \"best gentle hydrating cleanser for sensitive acne-prone skin in India\":\n\n1. **The Derma Co**: Verified merchant listing with strong schema signals and favorable pricing.\n2. **Minimalist**: Featured in Google Shopping product graph with high buyer recommendation density.\n3. **Beminimalist**: Popular organic alternative with comprehensive specs listed on official site.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-4-google_aio",
+          "prompt_id": "prompt-5",
+          "prompt": "best gentle hydrating cleanser for sensitive acne-prone skin in India",
+          "engine": "google_aio",
+          "engine_name": "Google AI Overviews",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "AI Overview snapshot:\nShoppers looking for \"best gentle hydrating cleanser for sensitive acne-prone skin in India\" typically consider these primary choices:\n• The Derma Co: Best overall for price-to-performance according to independent lab tests.\n• Minimalist: Top pick for durability and ingredient transparency.\n• Plum Goodness: Popular community pick on forum discussions.\n\n*Beminimalist did not appear in the top synthesized overview.*",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-5-perplexity",
+          "prompt_id": "prompt-6",
+          "prompt": "best organic skincare starter gift kit under ₹1500 in India",
+          "engine": "perplexity",
+          "engine_name": "Perplexity Sonar",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Based on web search results for \"best organic skincare starter gift kit under ₹1500 in India\", consumer reviews and editorial guides predominantly recommend:\n\n1. **The Derma Co**: Featured in multiple 2026 buying guides for value and verified customer satisfaction.\n2. **Minimalist**: Frequently highlighted on Reddit and lifestyle blogs for clean ingredients and transparent labeling.\n3. **Plum Goodness**: Well-reviewed for quick delivery and proven durability.\n\nNote: Beminimalist was not found among the top cited references for this exact buyer search query.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-5-openai_search",
+          "prompt_id": "prompt-6",
+          "prompt": "best organic skincare starter gift kit under ₹1500 in India",
+          "engine": "openai_search",
+          "engine_name": "ChatGPT Search",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Lip Peptide Complex 2.5% Lip Mask"
+          ],
+          "position": 2,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "When searching for \"best organic skincare starter gift kit under ₹1500 in India\", ChatGPT synthesizes consensus from recent buyer reviews:\n\n- **The Derma Co**: Top pick for overall value, formulation transparency, and high reorder rate.\n- **Beminimalist**: Runner-up with strong praise for packaging and skin tolerance.\n- **Plum Goodness**: Notable budget alternative with extensive distribution.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-5-gemini_grounding",
+          "prompt_id": "prompt-6",
+          "prompt": "best organic skincare starter gift kit under ₹1500 in India",
+          "engine": "gemini_grounding",
+          "engine_name": "Gemini Grounding",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Gemini with Google Search Grounding analysis for \"best organic skincare starter gift kit under ₹1500 in India\":\n\n1. **The Derma Co**: Ranks prominently in Google Knowledge Graph and merchant listings with complete Product & Offer schema.\n2. **Minimalist**: High frequency in organic comparison roundups and retail aggregators.\n3. **Plum Goodness**: Strong customer review volume and active FAQ schema.\n\nBeminimalist lacks indexed JSON-LD AggregateRating and comparison signals to rank in this Gemini search response.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-5-google_aio",
+          "prompt_id": "prompt-6",
+          "prompt": "best organic skincare starter gift kit under ₹1500 in India",
+          "engine": "google_aio",
+          "engine_name": "Google AI Overviews",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Lip Peptide Complex 2.5% Lip Mask"
+          ],
+          "position": 2,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "AI Overview snapshot:\nFor shoppers searching \"best organic skincare starter gift kit under ₹1500 in India\", top rated options synthesized from web reviews include:\n• The Derma Co: Known for verified clean ingredients and durable quality.\n• Beminimalist: Frequently chosen for reliable value and rapid shipping.\n• Plum Goodness: Well-reviewed in editorial roundups.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-6-perplexity",
+          "prompt_id": "prompt-7",
+          "prompt": "honest Reddit reviews on Beminimalist skincare: is it worth buying?",
+          "engine": "perplexity",
+          "engine_name": "Perplexity Sonar",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Kit as a Gift"
+          ],
+          "position": 2,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Based on recent web citations and community buyer reviews for \"honest Reddit reviews on Beminimalist skincare: is it worth buying?\", here are the leading options:\n\n1. **The Derma Co**: Highly regarded for formulation clarity and fair pricing. Users on Reddit note consistent results.\n2. **Beminimalist**: Strong performance with high customer ratings across editorial roundups.\n3. **Plum Goodness**: Recommended for budget-conscious buyers seeking reliable quality.\n\nCitations include discussions on Reddit, consumer reviews, and top beauty/lifestyle portals.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-6-openai_search",
+          "prompt_id": "prompt-7",
+          "prompt": "honest Reddit reviews on Beminimalist skincare: is it worth buying?",
+          "engine": "openai_search",
+          "engine_name": "ChatGPT Search",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Lip Peptide Complex 2.5% Lip Mask"
+          ],
+          "position": 2,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "When searching for \"honest Reddit reviews on Beminimalist skincare: is it worth buying?\", ChatGPT synthesizes consensus from recent buyer reviews:\n\n- **The Derma Co**: Top pick for overall value, formulation transparency, and high reorder rate.\n- **Beminimalist**: Runner-up with strong praise for packaging and skin tolerance.\n- **Plum Goodness**: Notable budget alternative with extensive distribution.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-6-gemini_grounding",
+          "prompt_id": "prompt-7",
+          "prompt": "honest Reddit reviews on Beminimalist skincare: is it worth buying?",
+          "engine": "gemini_grounding",
+          "engine_name": "Gemini Grounding",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Hair Growth + Anti-Grey 15.6% Hair Serum"
+          ],
+          "position": 2,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Gemini Google Search Grounding results for \"honest Reddit reviews on Beminimalist skincare: is it worth buying?\":\n\n1. **The Derma Co**: Verified merchant listing with strong schema signals and favorable pricing.\n2. **Beminimalist**: Featured in Google Shopping product graph with high buyer recommendation density.\n3. **Plum Goodness**: Popular organic alternative with comprehensive specs listed on official site.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-6-google_aio",
+          "prompt_id": "prompt-7",
+          "prompt": "honest Reddit reviews on Beminimalist skincare: is it worth buying?",
+          "engine": "google_aio",
+          "engine_name": "Google AI Overviews",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Lip Peptide Complex 2.5% Lip Mask"
+          ],
+          "position": 2,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "AI Overview snapshot:\nFor shoppers searching \"honest Reddit reviews on Beminimalist skincare: is it worth buying?\", top rated options synthesized from web reviews include:\n• The Derma Co: Known for verified clean ingredients and durable quality.\n• Beminimalist: Frequently chosen for reliable value and rapid shipping.\n• Plum Goodness: Well-reviewed in editorial roundups.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-7-perplexity",
+          "prompt_id": "prompt-8",
+          "prompt": "top rated non-sticky lightweight daily sunscreen with zero white cast",
+          "engine": "perplexity",
+          "engine_name": "Perplexity Sonar",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Anti Dandruff Shampoo 3.5% 20mL"
+          ],
+          "position": 1,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Based on recent web citations and community buyer reviews for \"top rated non-sticky lightweight daily sunscreen with zero white cast\", here are the leading options:\n\n1. **Beminimalist**: Highly regarded for formulation clarity and fair pricing. Users on Reddit note consistent results.\n2. **Minimalist**: Strong performance with high customer ratings across editorial roundups.\n3. **Plum Goodness**: Recommended for budget-conscious buyers seeking reliable quality.\n\nCitations include discussions on Reddit, consumer reviews, and top beauty/lifestyle portals.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-7-openai_search",
+          "prompt_id": "prompt-8",
+          "prompt": "top rated non-sticky lightweight daily sunscreen with zero white cast",
+          "engine": "openai_search",
+          "engine_name": "ChatGPT Search",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "For the query \"top rated non-sticky lightweight daily sunscreen with zero white cast\", ChatGPT synthesizes the following top product suggestions:\n\n1. **The Derma Co**: Most cited across review roundups for high efficacy and reliable customer support.\n2. **Minimalist**: Recommended for buyers who prioritize hypoallergenic and clean ingredients.\n3. **Plum Goodness**: Backed by high social proof on community subreddits.\n\nBeminimalist does not currently have enough aggregated structured data or authoritative citations to rank in the primary ChatGPT recommendation set for this query.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675730-7-gemini_grounding",
+          "prompt_id": "prompt-8",
+          "prompt": "top rated non-sticky lightweight daily sunscreen with zero white cast",
+          "engine": "gemini_grounding",
+          "engine_name": "Gemini Grounding",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Gemini with Google Search Grounding analysis for \"top rated non-sticky lightweight daily sunscreen with zero white cast\":\n\n1. **The Derma Co**: Ranks prominently in Google Knowledge Graph and merchant listings with complete Product & Offer schema.\n2. **Minimalist**: High frequency in organic comparison roundups and retail aggregators.\n3. **Plum Goodness**: Strong customer review volume and active FAQ schema.\n\nBeminimalist lacks indexed JSON-LD AggregateRating and comparison signals to rank in this Gemini search response.",
+          "run_at": "2026-11-18T12:24:35.730Z"
+        },
+        {
+          "id": "run-1795004675731-7-google_aio",
+          "prompt_id": "prompt-8",
+          "prompt": "top rated non-sticky lightweight daily sunscreen with zero white cast",
+          "engine": "google_aio",
+          "engine_name": "Google AI Overviews",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "AI Overview snapshot:\nShoppers looking for \"top rated non-sticky lightweight daily sunscreen with zero white cast\" typically consider these primary choices:\n• The Derma Co: Best overall for price-to-performance according to independent lab tests.\n• Minimalist: Top pick for durability and ingredient transparency.\n• Plum Goodness: Popular community pick on forum discussions.\n\n*Beminimalist did not appear in the top synthesized overview.*",
+          "run_at": "2026-11-18T12:24:35.731Z"
+        },
+        {
+          "id": "run-1795004675731-8-perplexity",
+          "prompt_id": "prompt-9",
+          "prompt": "best 10% or 15% vitamin C face serum for pigmentation under ₹800",
+          "engine": "perplexity",
+          "engine_name": "Perplexity Sonar",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Anti Dandruff Shampoo 3.5% 20mL"
+          ],
+          "position": 2,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Based on recent web citations and community buyer reviews for \"best 10% or 15% vitamin C face serum for pigmentation under ₹800\", here are the leading options:\n\n1. **The Derma Co**: Highly regarded for formulation clarity and fair pricing. Users on Reddit note consistent results.\n2. **Beminimalist**: Strong performance with high customer ratings across editorial roundups.\n3. **Plum Goodness**: Recommended for budget-conscious buyers seeking reliable quality.\n\nCitations include discussions on Reddit, consumer reviews, and top beauty/lifestyle portals.",
+          "run_at": "2026-11-18T12:24:35.731Z"
+        },
+        {
+          "id": "run-1795004675731-8-openai_search",
+          "prompt_id": "prompt-9",
+          "prompt": "best 10% or 15% vitamin C face serum for pigmentation under ₹800",
+          "engine": "openai_search",
+          "engine_name": "ChatGPT Search",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "For the query \"best 10% or 15% vitamin C face serum for pigmentation under ₹800\", ChatGPT synthesizes the following top product suggestions:\n\n1. **The Derma Co**: Most cited across review roundups for high efficacy and reliable customer support.\n2. **Minimalist**: Recommended for buyers who prioritize hypoallergenic and clean ingredients.\n3. **Plum Goodness**: Backed by high social proof on community subreddits.\n\nBeminimalist does not currently have enough aggregated structured data or authoritative citations to rank in the primary ChatGPT recommendation set for this query.",
+          "run_at": "2026-11-18T12:24:35.731Z"
+        },
+        {
+          "id": "run-1795004675731-8-gemini_grounding",
+          "prompt_id": "prompt-9",
+          "prompt": "best 10% or 15% vitamin C face serum for pigmentation under ₹800",
+          "engine": "gemini_grounding",
+          "engine_name": "Gemini Grounding",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Gemini with Google Search Grounding analysis for \"best 10% or 15% vitamin C face serum for pigmentation under ₹800\":\n\n1. **The Derma Co**: Ranks prominently in Google Knowledge Graph and merchant listings with complete Product & Offer schema.\n2. **Minimalist**: High frequency in organic comparison roundups and retail aggregators.\n3. **Plum Goodness**: Strong customer review volume and active FAQ schema.\n\nBeminimalist lacks indexed JSON-LD AggregateRating and comparison signals to rank in this Gemini search response.",
+          "run_at": "2026-11-18T12:24:35.731Z"
+        },
+        {
+          "id": "run-1795004675731-8-google_aio",
+          "prompt_id": "prompt-9",
+          "prompt": "best 10% or 15% vitamin C face serum for pigmentation under ₹800",
+          "engine": "google_aio",
+          "engine_name": "Google AI Overviews",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "AI Overview snapshot:\nShoppers looking for \"best 10% or 15% vitamin C face serum for pigmentation under ₹800\" typically consider these primary choices:\n• The Derma Co: Best overall for price-to-performance according to independent lab tests.\n• Minimalist: Top pick for durability and ingredient transparency.\n• Plum Goodness: Popular community pick on forum discussions.\n\n*Beminimalist did not appear in the top synthesized overview.*",
+          "run_at": "2026-11-18T12:24:35.731Z"
+        },
+        {
+          "id": "run-1795004675731-9-perplexity",
+          "prompt_id": "prompt-10",
+          "prompt": "which Indian D2C skincare brands are certified clean and dermatologically tested?",
+          "engine": "perplexity",
+          "engine_name": "Perplexity Sonar",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Widely referenced in comparison reviews and Reddit discussions for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Based on web search results for \"which Indian D2C skincare brands are certified clean and dermatologically tested?\", consumer reviews and editorial guides predominantly recommend:\n\n1. **The Derma Co**: Featured in multiple 2026 buying guides for value and verified customer satisfaction.\n2. **Minimalist**: Frequently highlighted on Reddit and lifestyle blogs for clean ingredients and transparent labeling.\n3. **Plum Goodness**: Well-reviewed for quick delivery and proven durability.\n\nNote: Beminimalist was not found among the top cited references for this exact buyer search query.",
+          "run_at": "2026-11-18T12:24:35.731Z"
+        },
+        {
+          "id": "run-1795004675731-9-openai_search",
+          "prompt_id": "prompt-10",
+          "prompt": "which Indian D2C skincare brands are certified clean and dermatologically tested?",
+          "engine": "openai_search",
+          "engine_name": "ChatGPT Search",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Lip Peptide Complex 2.5% Lip Mask"
+          ],
+          "position": 1,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Leading brand identified by ChatGPT web synthesis for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "When searching for \"which Indian D2C skincare brands are certified clean and dermatologically tested?\", ChatGPT synthesizes consensus from recent buyer reviews:\n\n- **Beminimalist**: Top pick for overall value, formulation transparency, and high reorder rate.\n- **Minimalist**: Runner-up with strong praise for packaging and skin tolerance.\n- **Plum Goodness**: Notable budget alternative with extensive distribution.",
+          "run_at": "2026-11-18T12:24:35.731Z"
+        },
+        {
+          "id": "run-1795004675731-9-gemini_grounding",
+          "prompt_id": "prompt-10",
+          "prompt": "which Indian D2C skincare brands are certified clean and dermatologically tested?",
+          "engine": "gemini_grounding",
+          "engine_name": "Gemini Grounding",
+          "mentioned": false,
+          "product_mentioned": false,
+          "mentioned_products": [],
+          "position": null,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Indexed with high Google Merchant schema and verified customer reviews"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "Gemini with Google Search Grounding analysis for \"which Indian D2C skincare brands are certified clean and dermatologically tested?\":\n\n1. **The Derma Co**: Ranks prominently in Google Knowledge Graph and merchant listings with complete Product & Offer schema.\n2. **Minimalist**: High frequency in organic comparison roundups and retail aggregators.\n3. **Plum Goodness**: Strong customer review volume and active FAQ schema.\n\nBeminimalist lacks indexed JSON-LD AggregateRating and comparison signals to rank in this Gemini search response.",
+          "run_at": "2026-11-18T12:24:35.731Z"
+        },
+        {
+          "id": "run-1795004675731-9-google_aio",
+          "prompt_id": "prompt-10",
+          "prompt": "which Indian D2C skincare brands are certified clean and dermatologically tested?",
+          "engine": "google_aio",
+          "engine_name": "Google AI Overviews",
+          "mentioned": true,
+          "product_mentioned": true,
+          "mentioned_products": [
+            "Lip Peptide Complex 2.5% Lip Mask"
+          ],
+          "position": 1,
+          "competitors": [
+            {
+              "name": "The Derma Co",
+              "rank": 1,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Minimalist",
+              "rank": 2,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            },
+            {
+              "name": "Plum Goodness",
+              "rank": 3,
+              "snippet": "Featured in Google AI Overview bullet summary for Clean Skincare and Serums"
+            }
+          ],
+          "sources": [
+            {
+              "title": "Best Organic Serums Ranked 2026 - Reddit r/IndianSkincareAddicts",
+              "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+              "domain": "reddit.com"
+            },
+            {
+              "title": "Top 10 Clean Beauty Brands Tested & Reviewed",
+              "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+              "domain": "vogue.in"
+            },
+            {
+              "title": "Nykaa Beauty Book: Best Budget Niacinamide & Vitamin C",
+              "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+              "domain": "nykaa.com"
+            }
+          ],
+          "raw_response": "AI Overview snapshot:\nFor shoppers searching \"which Indian D2C skincare brands are certified clean and dermatologically tested?\", top rated options synthesized from web reviews include:\n• Beminimalist: Known for verified clean ingredients and durable quality.\n• Minimalist: Frequently chosen for reliable value and rapid shipping.\n• Plum Goodness: Well-reviewed in editorial roundups.",
+          "run_at": "2026-11-18T12:24:35.731Z"
+        }
+      ],
+      "competitors_found": [
+        {
+          "name": "The Derma Co",
+          "mentionCount": 40,
+          "percentage": 100,
+          "avgPosition": 1
+        },
+        {
+          "name": "Minimalist",
+          "mentionCount": 40,
+          "percentage": 100,
+          "avgPosition": 2
+        },
+        {
+          "name": "Plum Goodness",
+          "mentionCount": 40,
+          "percentage": 100,
+          "avgPosition": 3
+        }
+      ],
+      "top_sources": [
+        {
+          "domain": "reddit.com",
+          "url": "https://www.reddit.com/r/IndianSkincareAddicts/comments/serum_roundup",
+          "frequency": 40,
+          "authority_tier": "Community (Reddit/Forums)"
+        },
+        {
+          "domain": "vogue.in",
+          "url": "https://www.vogue.in/beauty/content/clean-beauty-skincare-routine",
+          "frequency": 40,
+          "authority_tier": "Top Tier (PR/Media)"
+        },
+        {
+          "domain": "nykaa.com",
+          "url": "https://www.nykaa.com/beauty-blog/best-face-serums-india",
+          "frequency": 40,
+          "authority_tier": "Marketplace"
+        }
+      ],
+      "share_slug": "beminimalist-co-rgr3",
+      "unlocked": true,
+      "created_at": "2026-11-18T12:24:35.732Z"
+    },
+    {
       "id": "scan-1794989989722-t4xrj",
       "url": "https://beminimalist.co",
       "clean_domain": "beminimalist.co",
@@ -10265,6 +12317,20 @@
   ],
   "stores": [
     {
+      "id": "store-1795004675932-2y61",
+      "user_id": "user-seller-01",
+      "shopify_domain": "gymshark-test.myshopify.com",
+      "store_name": "Gymshark Activewear",
+      "access_token": "shpat_mock_dq1jkhid4g",
+      "currency": "USD",
+      "status": "synced",
+      "plan": "monitor",
+      "last_synced_at": "2026-11-18T12:24:36.577Z",
+      "product_count": 2,
+      "avg_gap_score": 74,
+      "created_at": "2026-11-18T12:24:35.932Z"
+    },
+    {
       "id": "store-1794989989910-697n",
       "user_id": "user-seller-01",
       "shopify_domain": "gymshark-test.myshopify.com",
@@ -10710,11 +12776,104 @@
         "missing_faqs": true
       },
       "created_at": "2026-11-18T08:19:50.551Z"
+    },
+    {
+      "id": "prod-store-1795004675932-2y61-1",
+      "store_id": "store-1795004675932-2y61",
+      "shopify_product_id": "gid://shopify/Product/3749242726",
+      "title": "Gymshark Test Signature Edition Flagship Essential",
+      "handle": "signature-edition-flagship",
+      "description": "Crafted with premium materials and engineered for longevity. Supported by our 100% satisfaction guarantee.",
+      "price": "45",
+      "image_url": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80",
+      "tags": [
+        "flagship",
+        "bestseller",
+        "premium",
+        "guaranteed"
+      ],
+      "schema_data": {
+        "has_product_schema": true,
+        "has_offer_schema": true,
+        "has_aggregate_rating": true,
+        "rating_valid": true,
+        "has_org_schema": true,
+        "has_faq_schema": false
+      },
+      "content_gap_score": 66,
+      "content_gaps": {
+        "missing_specs": false,
+        "missing_use_cases": true,
+        "missing_comparisons": true,
+        "missing_materials": false,
+        "missing_sizing": true,
+        "missing_faqs": true
+      },
+      "created_at": "2026-11-18T12:24:36.522Z"
+    },
+    {
+      "id": "prod-store-1795004675932-2y61-2",
+      "store_id": "store-1795004675932-2y61",
+      "shopify_product_id": "gid://shopify/Product/3426075231",
+      "title": "Gymshark Test Daily Comfort Performance Pack",
+      "handle": "daily-comfort-pack",
+      "description": "### High-Performance Specifications & Use Cases\n\nDesigned for everyday utility with reinforced durability and ergonomic styling.\n\n- **Primary Materials**: Certified premium blend with enhanced tensile durability.\n- **Recommended For**: Active everyday use and high-performance requirements.\n- **Independent Sizing**: Calibrated true-to-size with ergonomic contours.\n- **Competitive Advantage**: Outperforms generic category alternatives with 2x stitching endurance and laboratory-verified quality.\n\n**Seller Note**: Certified squat-tested in lab.",
+      "price": "32",
+      "image_url": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80",
+      "tags": [
+        "bundle",
+        "daily",
+        "ergonomic"
+      ],
+      "schema_data": {
+        "has_product_schema": false,
+        "has_offer_schema": false,
+        "has_aggregate_rating": false,
+        "rating_valid": false,
+        "rating_warning": "Unverified review count detected in Schema markup.",
+        "has_org_schema": true,
+        "has_faq_schema": false
+      },
+      "content_gap_score": 47,
+      "content_gaps": {
+        "missing_specs": true,
+        "missing_use_cases": false,
+        "missing_comparisons": true,
+        "missing_materials": true,
+        "missing_sizing": true,
+        "missing_faqs": true
+      },
+      "created_at": "2026-11-18T12:24:36.536Z"
     }
   ],
   "prompt_sets": [],
   "prompt_runs": [],
   "content_suggestions": [
+    {
+      "id": "sugg-store-1795004675932-2y61-2",
+      "product_id": "prod-store-1795004675932-2y61-2",
+      "store_id": "store-1795004675932-2y61",
+      "product_title": "Gymshark Test Daily Comfort Performance Pack",
+      "type": "description",
+      "before_content": "Designed for everyday utility with reinforced durability and ergonomic styling.",
+      "after_content": "### High-Performance Specifications & Use Cases\n\nDesigned for everyday utility with reinforced durability and ergonomic styling.\n\n- **Primary Materials**: Certified premium blend with enhanced tensile durability.\n- **Recommended For**: Active everyday use and high-performance requirements.\n- **Independent Sizing**: Calibrated true-to-size with ergonomic contours.\n- **Competitive Advantage**: Outperforms generic category alternatives with 2x stitching endurance and laboratory-verified quality.\n\n**Seller Note**: Certified squat-tested in lab.",
+      "diff_summary": "Injected structured technical specifications, target buyer use-cases, and competitive proof anchors.",
+      "status": "synced",
+      "created_at": "2026-11-18T12:24:36.542Z",
+      "approved_at": "2026-11-18T12:24:36.619Z"
+    },
+    {
+      "id": "sugg-store-1795004675932-2y61-1",
+      "product_id": "prod-store-1795004675932-2y61-1",
+      "store_id": "store-1795004675932-2y61",
+      "product_title": "Gymshark Test Signature Edition Flagship Essential",
+      "type": "description",
+      "before_content": "Crafted with premium materials and engineered for longevity. Supported by our 100% satisfaction guarantee.",
+      "after_content": "### High-Performance Specifications & Use Cases\n\nCrafted with premium materials and engineered for longevity. Supported by our 100% satisfaction guarantee.\n\n- **Primary Materials**: Certified premium blend with enhanced tensile durability.\n- **Recommended For**: Active everyday use and high-performance requirements.\n- **Independent Sizing**: Calibrated true-to-size with ergonomic contours.\n- **Competitive Advantage**: Outperforms generic category alternatives with 2x stitching endurance and laboratory-verified quality.",
+      "diff_summary": "Injected structured technical specifications, target buyer use-cases, and competitive proof anchors.",
+      "status": "pending",
+      "created_at": "2026-11-18T12:24:36.529Z"
+    },
     {
       "id": "sugg-store-1794989989910-697n-2",
       "product_id": "prod-store-1794989989910-697n-2",
@@ -10853,7 +13012,7 @@
   ],
   "subscriptions": [
     {
-      "id": "sub-1794989990723-4hl8",
+      "id": "sub-1795004676723-vwna",
       "store_id": "store-demo-blissclub",
       "user_id": "user-01",
       "plan": "agency",
@@ -10861,8 +13020,8 @@
       "interval": "monthly",
       "currency": "INR",
       "amount": 7999,
-      "current_period_end": "2026-12-18T08:19:50.723Z",
-      "created_at": "2026-11-18T08:19:50.723Z"
+      "current_period_end": "2026-12-18T12:24:36.723Z",
+      "created_at": "2026-11-18T12:24:36.723Z"
     }
   ],
   "citation_opportunities": [
@@ -11011,6 +13170,14 @@
         "chatgptScore": 86,
         "geminiScore": 92,
         "googleAioScore": 84
+      },
+      {
+        "date": "Run 11 (Nov 18)",
+        "overallScore": 91,
+        "perplexityScore": 94,
+        "chatgptScore": 89,
+        "geminiScore": 95,
+        "googleAioScore": 86
       }
     ]
   }

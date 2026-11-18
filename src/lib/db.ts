@@ -24,8 +24,16 @@ interface DatabaseSchema {
   tracking_history: Record<string, TrackingPoint[]>; // store_id -> array of points
 }
 
-const DB_DIR = path.join(process.cwd(), 'data');
+function getDbDir(): string {
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NETLIFY) {
+    return path.join('/tmp', 'askrank-data');
+  }
+  return path.join(process.cwd(), 'data');
+}
+
+const DB_DIR = getDbDir();
 const DB_FILE = path.join(DB_DIR, 'askrank.db.json');
+const BUNDLED_DB_FILE = path.join(process.cwd(), 'data', 'askrank.db.json');
 
 class DatabaseService {
   private data: DatabaseSchema;
@@ -36,20 +44,35 @@ class DatabaseService {
   }
 
   private load(): DatabaseSchema {
-    if (!fs.existsSync(DB_DIR)) {
-      fs.mkdirSync(DB_DIR, { recursive: true });
-    }
+    try {
+      if (!fs.existsSync(DB_DIR)) {
+        fs.mkdirSync(DB_DIR, { recursive: true });
+      }
 
-    if (fs.existsSync(DB_FILE)) {
-      try {
+      // If running on serverless and tmp file doesn't exist yet, seed from bundled file
+      if (!fs.existsSync(DB_FILE) && fs.existsSync(BUNDLED_DB_FILE) && DB_FILE !== BUNDLED_DB_FILE) {
+        try {
+          fs.copyFileSync(BUNDLED_DB_FILE, DB_FILE);
+        } catch {}
+      }
+
+      if (fs.existsSync(DB_FILE)) {
         const stats = fs.statSync(DB_FILE);
         this.lastMtime = stats.mtimeMs;
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
         return JSON.parse(raw);
-      } catch (err) {
-        console.error('Failed to parse database file, resetting with seed data:', err);
       }
+    } catch (err) {
+      console.warn('Filesystem access warning, using in-memory store:', err);
     }
+
+    // Fallback: try reading bundled file if available
+    try {
+      if (fs.existsSync(BUNDLED_DB_FILE)) {
+        const raw = fs.readFileSync(BUNDLED_DB_FILE, 'utf-8');
+        return JSON.parse(raw);
+      }
+    } catch {}
 
     const initial = this.generateSeedData();
     this.saveData(initial);
@@ -72,13 +95,15 @@ class DatabaseService {
   }
 
   private saveData(data: DatabaseSchema): void {
-    if (!fs.existsSync(DB_DIR)) {
-      fs.mkdirSync(DB_DIR, { recursive: true });
-    }
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
     try {
+      if (!fs.existsSync(DB_DIR)) {
+        fs.mkdirSync(DB_DIR, { recursive: true });
+      }
+      fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
       this.lastMtime = fs.statSync(DB_FILE).mtimeMs;
-    } catch {}
+    } catch (err) {
+      console.warn('Filesystem write failed, keeping in-memory state:', err);
+    }
   }
 
   public persist(): void {
