@@ -1,246 +1,190 @@
-import { ShopifyProduct, ContentSuggestion, CitationOpportunity } from './types';
+import { fetchPublic, htmlToText, jsonLdBlocks, typesOf } from './store-fetcher';
+import { generateJson } from './llm';
+import { mapLimit } from './util';
+import type { DeepAudit, ProductAudit, PromptRunResult, StoreProduct, StoreSnapshot } from './types';
 
-export interface StructuredDataAuditResult {
-  hasProductSchema: boolean;
-  hasOfferSchema: boolean;
-  hasAggregateRating: boolean;
-  isRatingValid: boolean;
-  ratingWarning?: string;
-  hasOrgSchema: boolean;
-  hasFaqSchema: boolean;
-  schemaScore: number; // 0 - 100
-  recommendations: string[];
-  generatedSchemaJsonLd: string;
+/** Checks one product page's JSON-LD and copy. Everything here comes from the live page. */
+export async function auditProductPage(p: StoreProduct): Promise<ProductAudit> {
+  let html = '';
+  try {
+    const res = await fetchPublic(p.url, { accept: 'text/html', browser: true, timeout: 12_000 });
+    if (res.ok) html = await res.text();
+  } catch {
+    /* counted as not fetched */
+  }
+  const nodes = jsonLdBlocks(html);
+  const product = nodes.find((n) => typesOf(n).some((t) => t === 'Product' || t === 'ProductGroup'));
+  const offersRaw = product?.offers ?? product?.hasVariant?.[0]?.offers;
+  const offers = Array.isArray(offersRaw) ? offersRaw[0] : offersRaw;
+  const rating = product?.aggregateRating;
+  const count = Number(rating?.reviewCount ?? rating?.ratingCount ?? NaN);
+
+  let ratingIssue: string | null = null;
+  if (rating) {
+    if (!Number.isFinite(count)) ratingIssue = 'AggregateRating has no reviewCount or ratingCount, so it is not eligible for rich results.';
+    else if (count === 0) ratingIssue = 'AggregateRating reports 0 reviews. Remove it until real reviews exist.';
+  }
+
+  const text = (p.description || htmlToText(String(product?.description || ''))).toLowerCase();
+  const words = text.split(/\s+/).filter(Boolean).length;
+  const gaps: string[] = [];
+  if (words < 80) gaps.push(`Short description (${words} words). AI answers favour pages that state specifics.`);
+  if (!/\d\s?(ml|l|g|kg|mg|oz|lb|cm|mm|m|in|inch|"|gsm|%|w|mah|hours?|days?)\b/.test(text)) gaps.push('No measurable specs (sizes, weights, percentages, capacity).');
+  if (!/(made (of|from|with)|material|fabric|ingredient|cotton|leather|steel|wood|formula|blend)/.test(text)) gaps.push('Materials or ingredients are not stated.');
+  if (!/(ideal for|best for|perfect for|designed for|great for|use it|suitable for|who it'?s for)/.test(text)) gaps.push('Does not say who it is for or when to use it.');
+  if (!/(size|fit|dimension|length|width|height|capacity|compatib)/.test(text)) gaps.push('No sizing, fit or dimensions.');
+  if (!/(care|wash|clean|how to use|directions|warranty|return)/.test(text)) gaps.push('No care, usage, warranty or returns details.');
+
+  const fetched = Boolean(html);
+  const checks = {
+    hasProductSchema: Boolean(product),
+    hasOffer: Boolean(offers),
+    hasPrice: Boolean(offers?.price ?? offers?.lowPrice),
+    hasAvailability: Boolean(offers?.availability),
+    hasBrand: Boolean(product?.brand),
+    hasGtinOrSku: Boolean(product?.sku || product?.gtin || product?.gtin13 || product?.gtin12 || product?.mpn),
+    hasAggregateRating: Boolean(rating),
+    hasFaqSchema: nodes.some((n) => typesOf(n).includes('FAQPage')),
+  };
+  if (fetched) {
+    if (!checks.hasProductSchema) gaps.unshift('No Product structured data on the page.');
+    else {
+      if (!checks.hasPrice || !checks.hasAvailability) gaps.push('Offer is missing price or availability in structured data.');
+      if (!checks.hasBrand) gaps.push('Product structured data has no brand.');
+      if (!checks.hasGtinOrSku) gaps.push('No SKU, GTIN or MPN in structured data.');
+    }
+    if (!checks.hasFaqSchema) gaps.push('No FAQ section marked up with FAQPage.');
+  }
+  if (ratingIssue) gaps.push(ratingIssue);
+
+  const weights = [
+    !checks.hasProductSchema ? 25 : 0,
+    !checks.hasPrice || !checks.hasAvailability ? 10 : 0,
+    !checks.hasBrand ? 5 : 0,
+    !checks.hasGtinOrSku ? 5 : 0,
+    ratingIssue ? 10 : 0,
+    !checks.hasFaqSchema ? 10 : 0,
+  ];
+  const copyGaps = gaps.filter((g) => !/structured data|FAQPage|AggregateRating|SKU/.test(g)).length;
+  const gapScore = Math.min(100, (fetched ? weights.reduce((a, b) => a + b, 0) : 0) + copyGaps * 6);
+
+  return { title: p.title, url: p.url, fetched, ...checks, ratingIssue, descriptionWords: words, gaps, gapScore };
 }
 
-export function auditProductStructuredData(product: Partial<ShopifyProduct>, storeName: string): StructuredDataAuditResult {
-  const schema = product.schema_data || {
-    has_product_schema: false,
-    has_offer_schema: false,
-    has_aggregate_rating: false,
-    rating_valid: false,
-    has_org_schema: false,
-    has_faq_schema: false,
-  };
-
-  const recommendations: string[] = [];
-  let points = 0;
-
-  if (schema.has_product_schema) {
-    points += 30;
-  } else {
-    recommendations.push('Add Schema.org Product markup so AI bots parse product title, SKU, and image.');
-  }
-
-  if (schema.has_offer_schema) {
-    points += 25;
-  } else {
-    recommendations.push('Add Offer schema with valid price, priceCurrency, and in-stock availability.');
-  }
-
-  // AggregateRating validation rule: ONLY if genuine reviews exist!
-  if (schema.has_aggregate_rating) {
-    if (schema.rating_valid) {
-      points += 20;
-    } else {
-      recommendations.push('WARNING: AggregateRating schema detected without verified review count. AI crawlers flag fake review schemas.');
+/** Where competitors get cited but the store is not mentioned: outreach / PR targets. */
+export function citationTargets(results: PromptRunResult[], storeDomain: string) {
+  const map = new Map<string, { domain: string; url: string; competitors: Set<string>; count: number }>();
+  for (const r of results) {
+    if (r.mentioned || r.competitors.length === 0) continue;
+    for (const s of r.sources) {
+      if (!s.domain || s.domain === storeDomain || s.domain.endsWith(`.${storeDomain}`)) continue;
+      const e = map.get(s.domain) || { domain: s.domain, url: s.url, competitors: new Set<string>(), count: 0 };
+      e.count++;
+      r.competitors.slice(0, 3).forEach((c) => e.competitors.add(c.name));
+      map.set(s.domain, e);
     }
-  } else {
-    recommendations.push('Notice: No AggregateRating schema present. If you have verified customer reviews, inject AggregateRating schema with reviewCount to increase AI recommendation confidence.');
   }
+  return [...map.values()]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 15)
+    .map((e) => ({ domain: e.domain, url: e.url, competitorsNamed: [...e.competitors].slice(0, 5), count: e.count }));
+}
 
-  if (schema.has_org_schema) {
-    points += 15;
-  } else {
-    recommendations.push('Add Organization schema linking official brand name, logo, and social verification profiles.');
+export async function buildDeepAudit(snapshot: StoreSnapshot, results: PromptRunResult[]): Promise<DeepAudit> {
+  const products = await mapLimit(snapshot.products.slice(0, 10), 4, auditProductPage);
+  const site = {
+    hasOrganizationSchema: snapshot.homepageJsonLdTypes.some((t) => t === 'Organization' || t === 'OnlineStore' || t === 'Brand'),
+    hasLlmsTxt: snapshot.llmsTxtFound,
+    hasSitemap: snapshot.sitemapFound,
+    productsJsonPublic: snapshot.productsJsonFound,
+  };
+  const recommendations: string[] = [];
+  const noSchema = products.filter((p) => p.fetched && !p.hasProductSchema).length;
+  if (noSchema) recommendations.push(`${noSchema} of ${products.length} product pages have no Product structured data. Most Shopify themes add it; check your theme or app settings.`);
+  const ratingIssues = products.filter((p) => p.ratingIssue).length;
+  if (ratingIssues) recommendations.push(`${ratingIssues} product pages have review markup without a valid review count. Fix or remove it.`);
+  const thin = products.filter((p) => p.descriptionWords < 80).length;
+  if (thin) recommendations.push(`${thin} product descriptions are under 80 words. Add specs, materials, who it is for and sizing; the Content Fixer drafts these from your existing copy.`);
+  if (!site.hasOrganizationSchema) recommendations.push('Homepage has no Organization structured data (name, logo, social profiles). AI engines use it to recognise your brand.');
+  if (!site.hasLlmsTxt) recommendations.push('No /llms.txt file. Add one that lists your key pages so AI crawlers find them (generated below).');
+  const targets = citationTargets(results, snapshot.domain);
+  if (targets.length) recommendations.push(`AI answers that named competitors but not you cited ${targets.length} sites. Getting listed or reviewed on the top ones is the fastest route into those answers.`);
+  if (products.length === 0) recommendations.push('No public product data was found (/products.json is closed), so product pages could not be audited.');
+
+  return { generatedAt: new Date().toISOString(), products, site, citationTargets: targets, recommendations };
+}
+
+/** llms.txt draft from real store data only. Placeholders mark what the merchant must fill in. */
+export function generateLlmsTxt(snapshot: StoreSnapshot): string {
+  const lines = [
+    `# ${snapshot.storeName}`,
+    '',
+    `> ${snapshot.homepageDescription || '[ADD: one sentence describing what you sell and who it is for]'}`,
+    '',
+    '## Key pages',
+    `- [Home](https://${snapshot.domain}/)`,
+    `- [All products](https://${snapshot.domain}/collections/all)`,
+    `- [Shipping policy](https://${snapshot.domain}/policies/shipping-policy)`,
+    `- [Refund policy](https://${snapshot.domain}/policies/refund-policy)`,
+    '',
+    '## Products',
+  ];
+  for (const p of snapshot.products.slice(0, 30)) {
+    const summary = p.description.replace(/\s+/g, ' ').slice(0, 160);
+    lines.push(`- [${p.title}](${p.url})${summary ? `: ${summary}` : ''}`);
   }
+  if (snapshot.products.length === 0) lines.push('- [ADD: links to your best-selling products]');
+  return lines.join('\n') + '\n';
+}
 
-  if (schema.has_faq_schema) {
-    points += 10;
-  } else {
-    recommendations.push('Add FAQPage schema blocks answering shopper questions. Search LLMs pull FAQ answers directly into AI Overviews.');
-  }
-
-  const generatedSchema = {
+/** Product JSON-LD built from the store's real data (no invented ratings or prices). */
+export function productJsonLd(p: StoreProduct, brand: string, currency: string): string {
+  const data: Record<string, unknown> = {
     '@context': 'https://schema.org/',
     '@type': 'Product',
-    name: product.title || 'Product Title',
-    image: product.image_url || 'https://example.com/product.jpg',
-    description: product.description || 'Detailed product description.',
-    brand: {
-      '@type': 'Brand',
-      name: storeName
-    },
-    offers: {
-      '@type': 'Offer',
-      url: `https://${storeName.toLowerCase().replace(/\s+/g, '')}.com/products/${product.handle || 'item'}`,
-      priceCurrency: 'INR',
-      price: product.price || '999',
-      availability: 'https://schema.org/InStock',
-      itemCondition: 'https://schema.org/NewCondition'
-    },
-    ...(schema.rating_valid ? {
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: '4.8',
-        reviewCount: '124'
-      }
-    } : {})
+    name: p.title,
+    description: p.description.slice(0, 5000) || undefined,
+    image: p.imageUrl || undefined,
+    brand: { '@type': 'Brand', name: brand },
+    offers: p.price
+      ? { '@type': 'Offer', url: p.url, priceCurrency: currency, price: p.price, availability: 'https://schema.org/InStock' }
+      : undefined,
   };
-
-  return {
-    hasProductSchema: schema.has_product_schema,
-    hasOfferSchema: schema.has_offer_schema,
-    hasAggregateRating: schema.has_aggregate_rating,
-    isRatingValid: schema.rating_valid,
-    ratingWarning: schema.rating_warning,
-    hasOrgSchema: schema.has_org_schema,
-    hasFaqSchema: schema.has_faq_schema,
-    schemaScore: Math.min(100, points),
-    recommendations,
-    generatedSchemaJsonLd: JSON.stringify(generatedSchema, null, 2)
-  };
+  return `<script type="application/ld+json">\n${JSON.stringify(data, null, 2)}\n</script>`;
 }
 
-export function detectContentGaps(product: Partial<ShopifyProduct>): {
-  gapScore: number;
-  gaps: ShopifyProduct['content_gaps'];
-  missingSummary: string[];
-} {
-  const text = (product.description || '').toLowerCase();
-  const tags = (product.tags || []).join(' ').toLowerCase();
-  const combined = `${text} ${tags}`;
+export type FixType = 'description' | 'faqs' | 'schema';
 
-  const missing_specs = !(
-    combined.includes('specification') ||
-    combined.includes('weight') ||
-    combined.includes('dimension') ||
-    combined.includes('%') ||
-    combined.includes('oz') ||
-    combined.includes('ml') ||
-    combined.includes('gsm') ||
-    combined.includes('inseam')
-  );
-
-  const missing_use_cases = !(
-    combined.includes('ideal for') ||
-    combined.includes('designed for') ||
-    combined.includes('best for') ||
-    combined.includes('routine') ||
-    combined.includes('workout') ||
-    combined.includes('yoga') ||
-    combined.includes('running') ||
-    combined.includes('daily wear') ||
-    combined.includes('morning')
-  );
-
-  const missing_comparisons = !(
-    combined.includes('vs') ||
-    combined.includes('unlike') ||
-    combined.includes('compared to') ||
-    combined.includes('alternative') ||
-    combined.includes('traditional')
-  );
-
-  const missing_materials = !(
-    combined.includes('material') ||
-    combined.includes('fabric') ||
-    combined.includes('cotton') ||
-    combined.includes('polyester') ||
-    combined.includes('spandex') ||
-    combined.includes('bamboo') ||
-    combined.includes('ingredients') ||
-    combined.includes('arabica') ||
-    combined.includes('made of')
-  );
-
-  const missing_sizing = !(
-    combined.includes('size') ||
-    combined.includes('fit') ||
-    combined.includes('true to size') ||
-    combined.includes('waist') ||
-    combined.includes('length') ||
-    combined.includes('chart')
-  );
-
-  const missing_faqs = !(
-    combined.includes('faq') ||
-    combined.includes('frequently asked') ||
-    combined.includes('how to use') ||
-    combined.includes('how to wash') ||
-    combined.includes('q:') ||
-    combined.includes('question')
-  );
-
-  const missingList: string[] = [];
-  let gapCount = 0;
-
-  if (missing_specs) { missingList.push('Missing Technical Specifications / Dimensions'); gapCount += 18; }
-  if (missing_use_cases) { missingList.push('Missing Specific Target Use-Cases (Who & When)'); gapCount += 18; }
-  if (missing_comparisons) { missingList.push('Missing Competitor Comparison Anchors'); gapCount += 20; }
-  if (missing_materials) { missingList.push('Missing Material / Ingredient Composition Details'); gapCount += 16; }
-  if (missing_sizing) { missingList.push('Missing Sizing / Fit / Usage Guidance'); gapCount += 14; }
-  if (missing_faqs) { missingList.push('Missing Direct Shopper FAQ Block'); gapCount += 14; }
-
-  return {
-    gapScore: Math.min(100, gapCount),
-    gaps: {
-      missing_specs,
-      missing_use_cases,
-      missing_comparisons,
-      missing_materials,
-      missing_sizing,
-      missing_faqs
-    },
-    missingSummary: missingList
-  };
-}
-
-export function generateLlmsTxt(storeName: string, domain: string, products: ShopifyProduct[]): string {
-  const lines: string[] = [];
-  lines.push(`# ${storeName}`);
-  lines.push(`> Official store catalog and machine-readable data for AI search crawlers (Perplexity, ChatGPT, Gemini, Google AIO).`);
-  lines.push(``);
-  lines.push(`## Brand Overview`);
-  lines.push(`- **Domain**: https://${domain}`);
-  lines.push(`- **Category**: Premium Direct-to-Consumer`);
-  lines.push(`- **Customer Support**: support@${domain}`);
-  lines.push(`- **Return Policy**: 30-Day Hassle-Free Returns & Free Exchanges`);
-  lines.push(`- **Shipping**: Free nationwide shipping on orders over ₹999`);
-  lines.push(``);
-  lines.push(`## Core Product Catalog & Specifications`);
-  lines.push(``);
-
-  for (const p of products) {
-    lines.push(`### ${p.title}`);
-    lines.push(`- **Price**: ₹${p.price}`);
-    lines.push(`- **URL**: https://${domain}/products/${p.handle}`);
-    lines.push(`- **Summary**: ${p.description.slice(0, 200)}...`);
-    if (p.tags && p.tags.length > 0) {
-      lines.push(`- **Keywords**: ${p.tags.join(', ')}`);
-    }
-    lines.push(``);
+/**
+ * Drafts improved product content. The model may only reuse facts already in the product data;
+ * anything it would need to know but doesn't is left as an [ADD: ...] placeholder for the merchant.
+ */
+export async function draftContentFix(p: StoreProduct, type: FixType, ctx: { brand: string; currency: string; prompts: string[] }): Promise<string> {
+  if (type === 'schema') return productJsonLd(p, ctx.brand, ctx.currency);
+  const facts = `Brand: ${ctx.brand}\nProduct: ${p.title}\nPrice: ${p.price} ${ctx.currency}\nTags: ${p.tags.join(', ')}\nCurrent description:\n${p.description.slice(0, 4000) || '(empty)'}`;
+  const rules =
+    'Rules: use ONLY facts present in the product data. Never invent specs, materials, certifications, ratings, review counts, awards or competitor claims. ' +
+    'Where a shopper would need a fact that is missing, write a placeholder like [ADD: fabric composition]. Plain, specific language, no hype.';
+  if (type === 'description') {
+    const res = await generateJson<{ description: string }>(
+      `You write Shopify product descriptions that AI shopping assistants can quote. ${rules} ` +
+        'Structure: 1-2 sentence summary, then short sections in Markdown: "Key details" (bullets), "Who it is for", "Size and fit" or "How to use", "Care". Reply as JSON {"description": "..."}',
+      `${facts}\n\nShopper questions this product should answer:\n${ctx.prompts.slice(0, 6).map((q) => `- ${q}`).join('\n')}`,
+      { maxTokens: 1500 },
+    );
+    return String(res.description || '').trim();
   }
-
-  lines.push(`## Official Brand Answers for AI Shopper Assistants`);
-  lines.push(`- **Is ${storeName} authentic and verified?**: Yes, all products are manufactured with strict quality controls and backed by thousands of verified reviews.`);
-  lines.push(`- **How does ${storeName} compare to cheaper alternatives?**: Unlike generic competitors, ${storeName} provides certified materials, ergonomic tailoring, and transparent specifications.`);
-  lines.push(``);
-
-  return lines.join('\n');
-}
-
-export function generateAboutPageSuggestion(storeName: string, niche: string): string {
-  return `# About ${storeName}: Engineered for Modern Buyers
-
-## Our Mission
-At **${storeName}**, we set out to redefine ${niche} by eliminating unnecessary markups, hidden ingredients, and flimsy construction. Every product in our collection is rigorously prototyped, lab-tested, and built to solve real everyday challenges.
-
-## Why Conversational AI & Discerning Shoppers Choose Us
-1. **Uncompromised Quality & Lab Verification**: We disclose 100% of our material compositions and active ingredient percentages.
-2. **Transparent Sourcing**: Ethical manufacturing with traceable supply chains.
-3. **Guaranteed Satisfaction**: 30-day wear-and-test guarantee with instant hassle-free returns.
-
-## What Sets Us Apart From Industry Competitors
-While legacy brands rely on inflated marketing budgets, we invest directly into fabric technology, pure formulations, and direct customer feedback loops.`;
+  const res = await generateJson<{ faqs: Array<{ q: string; a: string }> }>(
+    `You write product FAQs that answer real shopper questions. ${rules} 4-6 FAQs. Reply as JSON {"faqs":[{"q":"...","a":"..."}]}`,
+    `${facts}\n\nShopper questions seen in AI search:\n${ctx.prompts.slice(0, 8).map((q) => `- ${q}`).join('\n')}`,
+    { maxTokens: 1500 },
+  );
+  const faqs = (res.faqs || []).filter((f) => f?.q && f?.a).slice(0, 6);
+  const md = faqs.map((f) => `**${f.q}**\n${f.a}`).join('\n\n');
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  };
+  return `${md}\n\n<!-- Paste below into the product page template (only after replacing every [ADD: ...]) -->\n<script type="application/ld+json">\n${JSON.stringify(ld, null, 2)}\n</script>`;
 }

@@ -1,97 +1,58 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { fetchStorePublicData } from '@/lib/store-fetcher';
-import { generateBuyerPrompts } from '@/lib/prompt-generator';
-import { EngineRegistry } from '@/lib/engines';
-import { calculateAIVisibilityScore } from '@/lib/scoring';
+import { NextRequest, NextResponse, after } from 'next/server';
 import { db } from '@/lib/db';
-import { ScanRecord, PromptRunResult } from '@/lib/types';
+import { getUser } from '@/lib/auth';
+import { hit } from '@/lib/rate-limit';
+import { createScanRecord, runScan } from '@/lib/scan-runner';
+import { activeEngines } from '@/lib/engines';
+import { FREE_SCAN_PROMPTS } from '@/lib/plans';
+import { clientIp, intEnv, normalizeDomain, sha256 } from '@/lib/util';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 300;
 
+/** Starts a free scan. The scan runs after the response; the page polls GET /api/scan/:id. */
 export async function POST(req: NextRequest) {
+  let body: { url?: string; niche?: string } = {};
   try {
-    const body = await req.json();
-    const { url, niche, email } = body;
-
-    if (!url || typeof url !== 'string') {
-      return NextResponse.json({ error: 'Please provide a valid store URL' }, { status: 400 });
-    }
-
-    // 1. Fetch store public data (/products.json, homepage, sitemap)
-    const storeData = await fetchStorePublicData(url, niche);
-
-    // 2. Generate 10 realistic buyer prompts tailored to niche and currency
-    const buyerPrompts = generateBuyerPrompts(storeData.storeName, storeData.niche, storeData.currency);
-
-    // 3. Query pluggable AI engines
-    const engines = EngineRegistry.getActiveEngines();
-    const results: PromptRunResult[] = [];
-
-    for (let i = 0; i < buyerPrompts.length; i++) {
-      const promptObj = buyerPrompts[i];
-      // Run across each engine
-      for (const engine of engines) {
-        const engineOutput = await engine.query(promptObj.query, {
-          brandName: storeData.storeName,
-          storeUrl: `https://${storeData.cleanDomain}`,
-          niche: storeData.niche,
-          sampleProducts: storeData.sampleProducts
-        });
-
-        results.push({
-          id: `run-${Date.now()}-${i}-${engine.id}`,
-          prompt_id: promptObj.id,
-          prompt: promptObj.query,
-          engine: engine.id,
-          engine_name: engine.name,
-          mentioned: engineOutput.mentioned,
-          product_mentioned: engineOutput.productMentioned,
-          mentioned_products: engineOutput.mentionedProducts,
-          position: engineOutput.position,
-          competitors: engineOutput.competitors,
-          sources: engineOutput.sources,
-          raw_response: engineOutput.rawResponse,
-          run_at: new Date().toISOString()
-        });
-      }
-    }
-
-    // 4. Calculate overall AI Visibility Score (0-100) & breakdown
-    const scoreData = calculateAIVisibilityScore(results, storeData.storeName);
-
-    // 5. Build and save Scan Record
-    const scanId = `scan-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-    const shareSlug = `${storeData.cleanDomain.replace(/[^a-z0-9]/g, '-')}-${Math.random().toString(36).substring(2, 6)}`;
-
-    const scanRecord: ScanRecord = {
-      id: scanId,
-      url: `https://${storeData.cleanDomain}`,
-      clean_domain: storeData.cleanDomain,
-      store_name: storeData.storeName,
-      niche: storeData.niche,
-      email: email ? String(email).trim() : null,
-      score: scoreData.score,
-      breakdown: scoreData.breakdown,
-      prompts: buyerPrompts,
-      results,
-      competitors_found: scoreData.competitorsFound,
-      top_sources: scoreData.topSources,
-      share_slug: shareSlug,
-      unlocked: Boolean(email),
-      created_at: new Date().toISOString()
-    };
-
-    db.createScan(scanRecord);
-
-    return NextResponse.json({
-      success: true,
-      scan: scanRecord
-    });
-  } catch (err: any) {
-    console.error('Scan failed:', err);
-    return NextResponse.json(
-      { error: err.message || 'Failed to process store scan. Please try again.' },
-      { status: 500 }
-    );
+    body = await req.json();
+  } catch {
+    /* empty body */
   }
+  const domain = normalizeDomain(body.url || '');
+  if (!domain) return NextResponse.json({ error: 'Enter your store address, like yourstore.com' }, { status: 400 });
+  if (activeEngines().length === 0) {
+    return NextResponse.json({ error: 'Scanning is switched off right now. Please try again later.' }, { status: 503 });
+  }
+
+  // Same store scanned recently: reuse it (saves API cost, and stops refresh-spamming).
+  const cacheHours = intEnv('FREE_SCAN_CACHE_HOURS', 24);
+  const recent = await db.scan.findFirst({
+    where: { domain, kind: 'free', status: { in: ['running', 'done'] }, createdAt: { gte: new Date(Date.now() - cacheHours * 3600_000) } },
+    orderBy: { createdAt: 'desc' },
+    select: { id: true },
+  });
+  if (recent) return NextResponse.json({ id: recent.id, cached: true });
+
+  const user = await getUser();
+  const ipHash = sha256(`${clientIp(req.headers)}|${process.env.AUTH_SECRET || ''}`);
+  const perIp = user && user.plan !== 'free' ? intEnv('PAID_SCANS_PER_DAY', 30) : intEnv('FREE_SCANS_PER_IP_PER_DAY', 3);
+  const day = new Date().toISOString().slice(0, 10);
+
+  if (!(await hit(`scan:ip:${user && user.plan !== 'free' ? user.id : ipHash}:${day}`, perIp, 86_400))) {
+    return NextResponse.json({ error: `You've used today's ${perIp} free scans. Come back tomorrow, or start a plan for weekly tracking.` }, { status: 429 });
+  }
+  if (!(await hit(`scan:global:${day}`, intEnv('FREE_SCANS_PER_DAY', 150), 86_400))) {
+    return NextResponse.json({ error: 'We have hit today\'s scan limit. Please try again tomorrow.' }, { status: 429 });
+  }
+
+  const scan = await createScanRecord({
+    domain,
+    kind: 'free',
+    promptCount: FREE_SCAN_PROMPTS,
+    ipHash,
+    userId: user?.id ?? null,
+    niche: typeof body.niche === 'string' ? body.niche : null,
+  });
+  after(() => runScan(scan.id));
+  return NextResponse.json({ id: scan.id });
 }

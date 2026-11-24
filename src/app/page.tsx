@@ -49,56 +49,26 @@ export default function HomePage() {
   ];
   const [selectedTheme, setSelectedTheme] = useState(scenicThemes[0]);
 
-  const sampleStores = [
-    { label: 'BlissClub', url: 'blissclub.com', niche: 'Women\'s Activewear' },
-    { label: 'The Minimalist', url: 'beminimalist.co', niche: 'Clean Skincare' },
-    { label: 'Blue Tokai', url: 'bluetokaicoffee.com', niche: 'Specialty Coffee' },
-    { label: 'Gymshark', url: 'gymshark.com', niche: 'Athletic Wear' },
-  ];
-
-  const handleQuickFill = (store: typeof sampleStores[0]) => {
-    setUrl(store.url);
-    setNiche(store.niche);
-  };
-
   const handleRunScan = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url.trim()) {
-      setError('Please enter a store URL or Shopify domain.');
+      setError('Please enter your store address.');
       return;
     }
-
     setLoading(true);
     setError(null);
-
+    setScanStep('Starting your scan…');
     try {
-      setScanStep('Fetching storefront & public products...');
-      await new Promise(r => setTimeout(r, 600));
-
-      setScanStep('Synthesizing 10 high-intent buyer prompts...');
-      await new Promise(r => setTimeout(r, 600));
-
-      setScanStep('Querying Perplexity, ChatGPT & Gemini...');
-
       const res = await fetch('/api/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, niche })
+        body: JSON.stringify({ url, niche }),
       });
-
       const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Failed to complete scan');
-      }
-
-      setScanStep('Calculating AI Visibility Score & Generating OG Card...');
-      await new Promise(r => setTimeout(r, 400));
-
-      router.push(`/scan/${data.scan.id}`);
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || 'Something went wrong running the scan. Please verify the URL.');
+      if (!res.ok || !data.id) throw new Error(data.error || 'Could not start the scan');
+      router.push(`/scan/${data.id}`);
+    } catch (err) {
+      setError((err as Error).message || 'Something went wrong. Please check the address.');
       setLoading(false);
       setScanStep(null);
     }
@@ -143,7 +113,7 @@ export default function HomePage() {
             <a href="#how-it-works" className="px-3 py-1 hover:text-white transition-colors">How it works?</a>
             <a href="#difference" className="px-3 py-1 hover:text-white transition-colors">The Difference</a>
             <Link href="/pricing" className="px-3 py-1 hover:text-white transition-colors">Pricing</Link>
-            <Link href="/dashboard/audit" className="px-3 py-1 hover:text-white transition-colors">Audit</Link>
+            <Link href="/dashboard" className="px-3 py-1 hover:text-white transition-colors">Dashboard</Link>
           </nav>
 
           {/* Right Action Pill */}
@@ -153,7 +123,7 @@ export default function HomePage() {
               className="px-4 py-2 text-xs font-semibold rounded-full bg-white/90 hover:bg-white text-slate-900 shadow-md transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5"
             >
               <Store className="w-3.5 h-3.5" />
-              <span>Connect Store</span>
+              <span>Sign in</span>
             </Link>
           </div>
         </header>
@@ -166,21 +136,21 @@ export default function HomePage() {
           {/* Centered Pill Tag */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full railroad-nav-pill text-white/90 text-xs font-medium mb-6 shadow-sm backdrop-blur-md">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span>14,000+ AI buyer queries benchmarked</span>
+            <span>Real answers from ChatGPT Search, Perplexity &amp; Gemini</span>
           </div>
 
           {/* Main Clean Typography */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.12] mb-5 drop-shadow-sm">
-            Focus in a Constantly <br className="hidden sm:inline" />
-            <span className="text-slate-900">AI-Answered World</span>
+            When shoppers ask AI, <br className="hidden sm:inline" />
+            <span className="text-slate-900">does it recommend you?</span>
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-800/90 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed font-normal drop-shadow-sm">
-            Cut through the noise of AI search. Discover if ChatGPT, Perplexity, and Gemini recommend your Shopify products to shoppers — and fix your data in minutes.
+          <p className="text-sm sm:text-base text-slate-900 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed font-medium bg-white/55 backdrop-blur-md rounded-2xl px-5 py-3">
+            Shoppers now ask AI what to buy. We ask ChatGPT, Perplexity and Gemini the questions your customers ask, and show you whether they recommend your store or your competitors. Free, in about two minutes.
           </p>
 
-          {/* Frosted Glass Input Capsule (Railroad.ai Signature Element) */}
-          <div className="max-w-xl mx-auto">
+          {/* Frosted Glass Input Capsule  */}
+          <div id="scan" className="max-w-xl mx-auto scroll-mt-24">
             {loading ? (
               <div className="railroad-capsule rounded-full py-4 px-6 flex items-center justify-center gap-3 text-slate-900 text-xs font-semibold shadow-2xl">
                 <div className="w-5 h-5 rounded-full border-2 border-slate-900/30 border-t-slate-900 animate-spin" />
@@ -190,7 +160,7 @@ export default function HomePage() {
               <form onSubmit={handleRunScan} className="railroad-capsule rounded-full p-1.5 sm:p-2 flex items-center gap-2 shadow-2xl transition-all hover:border-white/80">
                 <input
                   type="text"
-                  placeholder="Enter your store URL (e.g. blissclub.com)"
+                  placeholder="yourstore.com"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   className="flex-1 bg-transparent px-4 sm:px-5 py-2 text-xs sm:text-sm text-slate-900 placeholder:text-slate-600/80 focus:outline-none font-medium"
@@ -212,21 +182,6 @@ export default function HomePage() {
               </div>
             )}
 
-            {/* Quick Demo Store Chips */}
-            {!loading && (
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-800">
-                <span className="text-[11px] font-medium text-slate-700/90">Try a demo:</span>
-                {sampleStores.map((s) => (
-                  <button
-                    key={s.label}
-                    onClick={() => handleQuickFill(s)}
-                    className="px-2.5 py-1 rounded-full bg-white/40 hover:bg-white/70 text-slate-900 text-[11px] font-medium backdrop-blur-sm border border-white/50 transition-all shadow-xs"
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
         </div>
@@ -291,7 +246,7 @@ export default function HomePage() {
               <span className="text-xs font-mono font-bold text-emerald-400 tracking-wider">01 / DISCOVERY</span>
               <h3 className="text-lg font-bold text-white mt-3 mb-2">Instant Free Scan</h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Enter your URL. We simulate 10 commercial buyer prompts across ChatGPT Search, Perplexity Sonar, and Gemini Grounding to score your brand visibility from 0 to 100.
+                Enter your URL. We write 10 real buyer questions for your category and ask ChatGPT Search, Perplexity and Gemini live, then score how often and how high they recommend you, from 0 to 100.
               </p>
             </div>
             <div className="mt-8 pt-4 border-t border-white/5 text-[11px] text-slate-300 font-medium flex items-center gap-2">
@@ -306,12 +261,12 @@ export default function HomePage() {
               <span className="text-xs font-mono font-bold text-teal-400 tracking-wider">02 / AUDIT</span>
               <h3 className="text-lg font-bold text-white mt-3 mb-2">Deep Data Audit</h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Connect your catalog to uncover missing sizing, materials, comparisons, and Schema.org review validity. Discover exactly where competitors get cited by AI.
+                Check your product pages for missing structured data, specs, materials and sizing, and see exactly which sites AI cites when it recommends your competitors.
               </p>
             </div>
             <div className="mt-8 pt-4 border-t border-white/5 text-[11px] text-slate-300 font-medium flex items-center gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-teal-400" />
-              <span>llms.txt standard generator</span>
+              <span>Ready-to-paste llms.txt &amp; JSON-LD</span>
             </div>
           </div>
 
@@ -319,14 +274,14 @@ export default function HomePage() {
           <div className="glass-card-clean rounded-3xl p-8 border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between">
             <div>
               <span className="text-xs font-mono font-bold text-cyan-400 tracking-wider">03 / APPROVAL</span>
-              <h3 className="text-lg font-bold text-white mt-3 mb-2">Approve & Grow</h3>
+              <h3 className="text-lg font-bold text-white mt-3 mb-2">Fix &amp; Track</h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Review AI-enriched descriptions and FAQ schema in side-by-side diffs. You approve every change before write-back. Weekly tracking monitors rank gains.
+                Get product descriptions and FAQs drafted from your real catalog (never invented facts), paste what you like into Shopify, and track your score every week.
               </p>
             </div>
             <div className="mt-8 pt-4 border-t border-white/5 text-[11px] text-slate-300 font-medium flex items-center gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Zero auto-publishing risk</span>
+              <span>We never touch your store</span>
             </div>
           </div>
 
@@ -344,7 +299,7 @@ export default function HomePage() {
               The Difference When Buyers Ask AI
             </h2>
             <p className="text-xs sm:text-sm text-slate-400 mt-2">
-              Why structured product data wins conversational recommendations.
+              An illustrative example with a made-up brand, “Northline”. Your scan shows your real answers.
             </p>
           </div>
 
@@ -353,30 +308,30 @@ export default function HomePage() {
             {/* Before */}
             <div className="p-6 rounded-2xl bg-slate-900/40 border border-white/5 text-xs">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-[11px] font-bold text-rose-400">Without AskRank</span>
-                <span className="text-[10px] text-slate-500">Default Catalog</span>
+                <span className="text-[11px] font-bold text-rose-400">Before: vague product page</span>
+                <span className="text-[10px] text-slate-500">Illustrative</span>
               </div>
               <p className="p-3.5 rounded-xl bg-black/40 text-slate-400 leading-relaxed italic border border-white/5">
-                "I searched for high-waisted workout leggings under ₹2,000, but couldn't verify fabric composition or customer reviews for BlissClub. I recommend Decathlon or H&M instead."
+                "For high-waisted leggings under ₹2,000 with deep pockets, popular picks are Brand A and Brand B, which list fabric, inseam and pocket size and have many reviews."
               </p>
               <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-500">
                 <span>Result: Brand ignored</span>
-                <span>Lost sale: 100%</span>
+                <span>Thin product data</span>
               </div>
             </div>
 
             {/* After */}
             <div className="p-6 rounded-2xl bg-emerald-950/20 border border-emerald-500/30 text-xs">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-[11px] font-bold text-emerald-400">With AskRank GEO</span>
-                <span className="text-[10px] text-emerald-400/80">Enriched Data</span>
+                <span className="text-[11px] font-bold text-emerald-400">After: specific, quotable details</span>
+                <span className="text-[10px] text-emerald-400/80">Illustrative</span>
               </div>
               <p className="p-3.5 rounded-xl bg-black/50 text-slate-200 leading-relaxed border border-emerald-500/20">
-                "The #1 recommended pick is <strong>BlissClub Move All-Day Leggings</strong> (₹1,799). Engineered with 4-way stretch squat-proof micro-knit and 4.8★ from 1,400+ verified customer reviews."
+                "A good option is <strong>Northline Studio Leggings</strong> (₹1,799): 78% nylon / 22% spandex, 7-inch side pockets, 3 inseam lengths. Its product page answers sizing and care questions directly."
               </p>
               <div className="mt-4 pt-3 border-t border-emerald-500/20 flex items-center justify-between text-[11px] text-emerald-400">
-                <span>Result: Rank #1 Recommendation</span>
-                <span>Direct link generated</span>
+                <span>Easier for AI to recommend</span>
+                <span>Specs AI can quote</span>
               </div>
             </div>
 
@@ -392,14 +347,14 @@ export default function HomePage() {
         <div className="text-center max-w-2xl mx-auto mb-12">
           <p className="text-xs font-semibold text-emerald-400 uppercase tracking-widest mb-2">Pricing</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Transparent & Predictable
+            Simple pricing
           </h2>
           <p className="text-xs sm:text-sm text-slate-400 mt-2">
             Start with a free scan. Upgrade for automated content fixes and weekly monitoring.
           </p>
         </div>
 
-        <PricingTable currentPlan="free" />
+        <PricingTable />
       </section>
 
       {/* ========================================================= */}
@@ -410,14 +365,15 @@ export default function HomePage() {
           <div className="flex items-center gap-2">
             <Cloud className="w-4 h-4 text-white/60" />
             <span className="font-semibold text-white">AskRank</span>
-            <span>— Generative Engine Optimization for Shopify</span>
+            <span>· AI visibility for online stores</span>
           </div>
           <div className="flex items-center gap-6">
             <Link href="/pricing" className="hover:text-slate-300 transition-colors">Pricing</Link>
-            <Link href="/dashboard/audit" className="hover:text-slate-300 transition-colors">Audit</Link>
+            <Link href="/privacy" className="hover:text-slate-300 transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-slate-300 transition-colors">Terms</Link>
             <Link href="/dashboard" className="hover:text-slate-300 transition-colors">Dashboard</Link>
           </div>
-          <div>© {new Date().getFullYear()} AskRank AI.</div>
+          <div>© {new Date().getFullYear()} AskRank</div>
         </div>
       </footer>
 

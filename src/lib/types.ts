@@ -1,11 +1,10 @@
-export type EngineId = 'perplexity' | 'openai_search' | 'gemini_grounding' | 'google_aio';
+export type EngineId = 'perplexity' | 'openai_search' | 'gemini_grounding';
 
 export interface BuyerPrompt {
   id: string;
   query: string;
-  category: 'intent_buy' | 'comparison' | 'budget' | 'ingredient_spec' | 'gift_occasion';
+  category: 'intent_buy' | 'comparison' | 'budget' | 'spec' | 'gift_occasion';
   intent: string;
-  volume_estimate: 'High' | 'Medium' | 'Trending';
 }
 
 export interface EngineSource {
@@ -17,7 +16,6 @@ export interface EngineSource {
 export interface EngineCompetitor {
   name: string;
   rank?: number;
-  snippet?: string;
 }
 
 export interface PromptRunResult {
@@ -26,159 +24,120 @@ export interface PromptRunResult {
   prompt: string;
   engine: EngineId;
   engine_name: string;
+  /** The store's brand appears in the answer text */
   mentioned: boolean;
-  product_mentioned: boolean;
+  /** The store's own site is among the cited sources */
+  cited: boolean;
   mentioned_products: string[];
-  position: number | null; // 1 = first brand recommended, 2 = second, null = not recommended
+  /** 1 = first brand recommended. null = not recommended / not in the ranked list */
+  position: number | null;
   competitors: EngineCompetitor[];
   sources: EngineSource[];
   raw_response: string;
+  error?: string;
   run_at: string;
 }
 
 export interface ScanBreakdown {
-  mention_rate: number; // 0 - 100
-  avg_position: number; // e.g. 1.8 or null
-  engine_diversity: number; // 0 - 100
-  source_authority: number; // 0 - 100
+  mention_rate: number; // % of answers naming the brand
+  avg_position: number | null; // average rank when named
+  engine_diversity: number; // % of engines that named the brand at least once
+  citation_rate: number; // % of answers citing the store's own site
 }
 
 export interface CompetitorStats {
   name: string;
   mentionCount: number;
   percentage: number;
-  avgPosition: number;
+  avgPosition: number | null;
 }
 
 export interface CitationSourceStats {
   domain: string;
   url: string;
   frequency: number;
-  authority_tier: 'Top Tier (PR/Media)' | 'Community (Reddit/Forums)' | 'Niche Blog' | 'Marketplace';
+  tier: 'Media & editorial' | 'Community & forums' | 'Marketplace' | 'Video' | 'Brand site' | 'Other';
 }
 
-export interface ScanRecord {
-  id: string;
-  url: string;
-  clean_domain: string;
-  store_name: string;
-  niche: string;
-  email: string | null;
-  score: number; // 0 - 100
-  breakdown: ScanBreakdown;
-  prompts: BuyerPrompt[];
-  results: PromptRunResult[];
-  competitors_found: CompetitorStats[];
-  top_sources: CitationSourceStats[];
-  share_slug: string;
-  unlocked: boolean;
-  created_at: string;
-}
-
-export interface ShopifyProduct {
-  id: string;
-  store_id: string;
-  shopify_product_id: string;
+export interface StoreProduct {
   title: string;
   handle: string;
   description: string;
   price: string;
-  image_url: string;
-  tags: string[];
-  schema_data: {
-    has_product_schema: boolean;
-    has_offer_schema: boolean;
-    has_aggregate_rating: boolean;
-    rating_valid: boolean;
-    rating_warning?: string;
-    has_org_schema: boolean;
-    has_faq_schema: boolean;
-    raw_json_ld?: any;
-  };
-  content_gap_score: number; // 0 - 100 (higher = worse gap)
-  content_gaps: {
-    missing_specs: boolean;
-    missing_use_cases: boolean;
-    missing_comparisons: boolean;
-    missing_materials: boolean;
-    missing_sizing: boolean;
-    missing_faqs: boolean;
-  };
-  created_at: string;
-}
-
-export interface StoreRecord {
-  id: string;
-  user_id: string;
-  shopify_domain: string;
-  store_name: string;
-  access_token: string;
-  currency: string;
-  status: 'connected' | 'syncing' | 'synced' | 'error';
-  plan: 'free' | 'report' | 'monitor' | 'agency';
-  last_synced_at: string | null;
-  product_count: number;
-  avg_gap_score: number;
-  created_at: string;
-}
-
-export interface ContentSuggestion {
-  id: string;
-  product_id: string;
-  store_id: string;
-  product_title: string;
-  type: 'description' | 'faqs' | 'specs' | 'comparisons' | 'schema' | 'llms_txt' | 'about_page';
-  before_content: string;
-  after_content: string;
-  diff_summary: string;
-  status: 'pending' | 'approved' | 'rejected' | 'synced';
-  created_at: string;
-  approved_at?: string;
-}
-
-export interface PromptSetRecord {
-  id: string;
-  store_id: string;
-  name: string;
-  niche: string;
-  prompts: string[];
-  active: boolean;
-  frequency: 'weekly' | 'daily';
-  last_run_at: string | null;
-  created_at: string;
-}
-
-export interface SubscriptionRecord {
-  id: string;
-  store_id: string;
-  user_id: string;
-  plan: 'free' | 'report' | 'monitor' | 'agency';
-  status: 'active' | 'canceled' | 'past_due';
-  interval: 'one_time' | 'monthly';
-  currency: 'USD' | 'INR';
-  amount: number;
-  current_period_end: string;
-  created_at: string;
-}
-
-export interface CitationOpportunity {
-  id: string;
-  store_id: string;
-  domain: string;
   url: string;
-  competitors_cited: string[];
-  citation_count: number;
-  authority_score: number;
-  opportunity_type: 'editorial_roundup' | 'reddit_discussion' | 'comparison_review' | 'forum_recommendation';
-  pitch_angle: string;
-  action_status: 'open' | 'in_progress' | 'pitch_sent' | 'won';
+  imageUrl?: string;
+  tags: string[];
 }
 
-export interface TrackingPoint {
-  date: string;
-  overallScore: number;
-  perplexityScore: number;
-  chatgptScore: number;
-  geminiScore: number;
-  googleAioScore: number;
+export interface StoreSnapshot {
+  domain: string;
+  storeName: string;
+  homepageTitle: string;
+  homepageDescription: string;
+  isShopify: boolean;
+  productsJsonFound: boolean;
+  sitemapFound: boolean;
+  llmsTxtFound: boolean;
+  products: StoreProduct[];
+  homepageJsonLdTypes: string[];
+  currency: string;
+}
+
+/** Scan as sent to the browser (locked prompts have their results removed on the server). */
+export interface ScanView {
+  id: string;
+  slug: string;
+  url: string;
+  domain: string;
+  storeName: string;
+  niche: string;
+  status: 'running' | 'done' | 'failed';
+  progress: string | null;
+  error: string | null;
+  kind: string;
+  score: number | null;
+  breakdown: ScanBreakdown | null;
+  prompts: BuyerPrompt[];
+  results: PromptRunResult[];
+  competitors: CompetitorStats[];
+  sources: CitationSourceStats[];
+  engines: EngineId[];
+  unlocked: boolean;
+  /** Can see the paid Deep Audit section */
+  deepAccess: boolean;
+  /** Prompts whose results are visible */
+  visiblePromptIds: string[];
+  createdAt: string;
+  finishedAt: string | null;
+}
+
+export interface ProductAudit {
+  title: string;
+  url: string;
+  fetched: boolean;
+  hasProductSchema: boolean;
+  hasOffer: boolean;
+  hasPrice: boolean;
+  hasAvailability: boolean;
+  hasBrand: boolean;
+  hasGtinOrSku: boolean;
+  hasAggregateRating: boolean;
+  ratingIssue: string | null;
+  hasFaqSchema: boolean;
+  descriptionWords: number;
+  gaps: string[];
+  gapScore: number; // 0-100, higher = more missing
+}
+
+export interface DeepAudit {
+  generatedAt: string;
+  products: ProductAudit[];
+  site: {
+    hasOrganizationSchema: boolean;
+    hasLlmsTxt: boolean;
+    hasSitemap: boolean;
+    productsJsonPublic: boolean;
+  };
+  citationTargets: Array<{ domain: string; url: string; competitorsNamed: string[]; count: number }>;
+  recommendations: string[];
 }

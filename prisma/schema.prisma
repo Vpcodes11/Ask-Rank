@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+/// A customer account. Signs in with an emailed magic link (no passwords).
+model User {
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  createdAt             DateTime  @default(now())
+  /// free | monitor | agency
+  plan                  String    @default("free")
+  subscriptionStatus    String?
+  billingSubscriptionId String?   @unique
+  billingCustomerId     String?
+  /// Bumping this signs the user out everywhere.
+  sessionVersion        Int       @default(0)
+  /// Agency white-label: shown on PDF reports instead of "AskRank".
+  agencyName            String?
+  stores                Store[]
+  scans                 Scan[]
+  purchases             Purchase[]
+}
+
+model LoginToken {
+  id        String    @id @default(cuid())
+  email     String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([email])
+}
+
+/// One visibility scan of a store: the free public scan, or a weekly monitor run.
+model Scan {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  url         String
+  domain      String
+  storeName   String
+  niche       String
+  currency    String    @default("USD")
+  /// running | done | failed
+  status      String    @default("running")
+  /// Short message shown while running / why it failed
+  progress    String?
+  error       String?
+  /// free | monitor
+  kind        String    @default("free")
+  promptCount Int       @default(10)
+  /// Lead captured when the visitor unlocks the full prompt list
+  email       String?
+  unlocked    Boolean   @default(false)
+  /// $19 one-time Deep Audit bought for this scan
+  reportPaid  Boolean   @default(false)
+  score       Int?
+  breakdown   Json?
+  prompts     Json      @default("[]")
+  results     Json      @default("[]")
+  competitors Json      @default("[]")
+  sources     Json      @default("[]")
+  engines     Json      @default("[]")
+  /// Public store data captured during the scan (products, JSON-LD, sitemap)
+  storeData   Json?
+  /// Deep audit (product JSON-LD + content gaps), generated on first paid view
+  deepAudit   Json?
+  ipHash      String?
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  storeId     String?
+  store       Store?    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  finishedAt  DateTime?
+
+  @@index([domain, createdAt])
+  @@index([storeId, createdAt])
+  @@index([ipHash, createdAt])
+  @@index([createdAt])
+}
+
+/// A store a paying customer tracks weekly.
+model Store {
+  id         String       @id @default(cuid())
+  userId     String
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  domain     String
+  name       String
+  niche      String?
+  /// Next time the weekly monitor should run this store
+  nextRunAt  DateTime     @default(now())
+  lastRunAt  DateTime?
+  /// Last time the customer pressed "Run now" (limited to once a day)
+  manualRunAt DateTime?
+  createdAt  DateTime     @default(now())
+  scans      Scan[]
+  fixes      ContentFix[]
+
+  @@unique([userId, domain])
+  @@index([nextRunAt])
+}
+
+/// AI-written product content the customer copies into Shopify.
+model ContentFix {
+  id            String   @id @default(cuid())
+  storeId       String
+  store         Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  productHandle String
+  productTitle  String
+  /// description | faqs | schema
+  type          String
+  before        String
+  after         String
+  /// new | applied | dismissed
+  status        String   @default("new")
+  createdAt     DateTime @default(now())
+
+  @@index([storeId, createdAt])
+}
+
+/// One-time purchases (the $19 Deep Audit).
+model Purchase {
+  id        String   @id @default(cuid())
+  paymentId String   @unique
+  email     String
+  scanId    String
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  amount    Int?
+  currency  String?
+  createdAt DateTime @default(now())
+}
+
+/// Webhook IDs already processed (Dodo can deliver the same event twice).
+model WebhookEvent {
+  id        String   @id
+  type      String
+  createdAt DateTime @default(now())
+}
+
+/// Fixed-window counters for rate limits (free scans per IP, daily caps, login emails).
+model RateLimit {
+  key       String   @id
+  count     Int      @default(0)
+  expiresAt DateTime
+}

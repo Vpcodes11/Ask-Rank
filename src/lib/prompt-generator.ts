@@ -1,215 +1,90 @@
-import { BuyerPrompt } from './types';
+import { generateJson, llmProvider } from './llm';
+import type { BuyerPrompt, StoreSnapshot } from './types';
 
-export function generateBuyerPrompts(brand: string, niche: string, currency: string = 'INR'): BuyerPrompt[] {
-  const isIndia = currency === 'INR' || niche.toLowerCase().includes('india');
-  const currencySymbol = isIndia ? '₹' : '$';
-  const geo = isIndia ? 'in India' : 'in the US/Global';
-  const n = niche.toLowerCase();
+const CATEGORIES: BuyerPrompt['category'][] = ['intent_buy', 'comparison', 'budget', 'spec', 'gift_occasion'];
+const SYMBOL: Record<string, string> = { INR: '₹', USD: '$', GBP: '£', EUR: '€', AUD: 'A$', CAD: 'C$' };
+const COUNTRY_NAME: Record<string, string> = { INR: 'India', USD: 'the US', GBP: 'the UK', AUD: 'Australia', CAD: 'Canada' };
 
-  let templates: Array<{
-    category: BuyerPrompt['category'];
-    intent: string;
-    volume: BuyerPrompt['volume_estimate'];
-    queryBuilder: () => string;
-  }> = [];
-
-  if (n.includes('skin') || n.includes('beauty')) {
-    templates = [
-      {
-        category: 'budget',
-        intent: 'Price-conscious shopper looking for proven efficacy',
-        volume: 'High',
-        queryBuilder: () => `best organic face serum under ${currencySymbol}${isIndia ? '1000' : '30'} ${geo}`
-      },
-      {
-        category: 'intent_buy',
-        intent: 'Active consumer seeking top 3 verified clean skincare brands',
-        volume: 'High',
-        queryBuilder: () => `top 3 clean beauty brands for glowing skin ${geo} with honest reviews`
-      },
-      {
-        category: 'ingredient_spec',
-        intent: 'Buyer seeking barrier repair with ceramides and zero fragrance',
-        volume: 'High',
-        queryBuilder: () => `best fragrance-free ceramide moisturizer for damaged skin barrier`
-      },
-      {
-        category: 'comparison',
-        intent: 'Shopper comparing flagship brand against incumbent competitors',
-        volume: 'Medium',
-        queryBuilder: () => `is ${brand} better than Minimalist or Plum for dark spots and acne marks?`
-      },
-      {
-        category: 'intent_buy',
-        intent: 'Consumer searching for daily morning routine picks',
-        volume: 'High',
-        queryBuilder: () => `best gentle hydrating cleanser for sensitive acne-prone skin ${geo}`
-      },
-      {
-        category: 'gift_occasion',
-        intent: 'Holiday/birthday shopper seeking self-care skincare kit',
-        volume: 'Medium',
-        queryBuilder: () => `best organic skincare starter gift kit under ${currencySymbol}${isIndia ? '1500' : '50'} ${geo}`
-      },
-      {
-        category: 'comparison',
-        intent: 'Reddit consensus query on brand credibility',
-        volume: 'Trending',
-        queryBuilder: () => `honest Reddit reviews on ${brand} skincare: is it worth buying?`
-      },
-      {
-        category: 'ingredient_spec',
-        intent: 'Shopper looking for non-comedogenic sunscreen or morning protection',
-        volume: 'High',
-        queryBuilder: () => `top rated non-sticky lightweight daily sunscreen with zero white cast`
-      },
-      {
-        category: 'budget',
-        intent: 'Affordable high-potency vitamin C serum inquiry',
-        volume: 'Medium',
-        queryBuilder: () => `best 10% or 15% vitamin C face serum for pigmentation under ${currencySymbol}${isIndia ? '800' : '25'}`
-      },
-      {
-        category: 'intent_buy',
-        intent: 'Shopper asking dermatologist-favored independent brands',
-        volume: 'High',
-        queryBuilder: () => `which Indian D2C skincare brands are certified clean and dermatologically tested?`
+/**
+ * Writes `count` questions a real shopper would type into ChatGPT/Perplexity/Gemini when looking for
+ * what this store sells. Most prompts must NOT name the brand (we measure organic recommendations);
+ * a couple are brand-check prompts ("is X worth it").
+ */
+export async function generateBuyerPrompts(s: StoreSnapshot, count: number, nicheHint?: string): Promise<{ niche: string; prompts: BuyerPrompt[] }> {
+  if (llmProvider()) {
+    try {
+      const catalog = s.products
+        .slice(0, 15)
+        .map((p) => `- ${p.title}${p.price ? ` (${SYMBOL[s.currency] || ''}${p.price})` : ''}${p.tags.length ? ` [${p.tags.slice(0, 5).join(', ')}]` : ''}`)
+        .join('\n');
+      const brandChecks = count >= 8 ? 2 : 1;
+      const res = await generateJson<{ niche?: string; prompts?: Array<{ query?: string; category?: string; intent?: string }> }>(
+        'You write realistic shopping questions people type into AI assistants. Reply as JSON: ' +
+          '{"niche":"<3-6 word category this store sells, e.g. Women\'s activewear>","prompts":[{"query":"...","category":"intent_buy|comparison|budget|spec|gift_occasion","intent":"<who is asking and why, 6-12 words>"}]}',
+        `Store: ${s.storeName} (${s.domain})\nHomepage title: ${s.homepageTitle}\nDescription: ${s.homepageDescription}\n` +
+          `${nicheHint ? `Merchant says the category is: ${nicheHint}\n` : ''}Shopper market: ${COUNTRY_NAME[s.currency] || 'global'}; currency ${s.currency}.\n` +
+          `Products:\n${catalog || '(product list not public)'}\n\n` +
+          `Write exactly ${count} prompts. ${count - brandChecks} must NOT mention ${s.storeName} and should be the kind of question where this store's products could reasonably be recommended ` +
+          `(best X for Y, X under a realistic price in ${s.currency}, X vs Y, gift ideas, specific needs). ${brandChecks} should ask directly about ${s.storeName} (reviews, is it worth it, alternatives). ` +
+          'Natural phrasing, 6-18 words, varied categories, no duplicates.',
+        { maxTokens: 1500 },
+      );
+      const prompts = (res.prompts || [])
+        .filter((p) => typeof p?.query === 'string' && p.query.trim().length > 8)
+        .slice(0, count)
+        .map((p, i) => ({
+          id: `prompt-${i + 1}`,
+          query: p.query!.trim().slice(0, 240),
+          category: CATEGORIES.includes(p.category as BuyerPrompt['category']) ? (p.category as BuyerPrompt['category']) : 'intent_buy',
+          intent: String(p.intent || '').slice(0, 140),
+        }));
+      if (prompts.length >= Math.min(count, 3)) {
+        return { niche: String(res.niche || nicheHint || 'Online store').slice(0, 80), prompts };
       }
-    ];
-  } else if (n.includes('fit') || n.includes('active') || n.includes('apparel')) {
-    templates = [
-      {
-        category: 'budget',
-        intent: 'Gym-goer seeking affordable squat-proof tights',
-        volume: 'High',
-        queryBuilder: () => `best squat proof high-waisted workout leggings under ${currencySymbol}${isIndia ? '2000' : '60'} ${geo}`
-      },
-      {
-        category: 'intent_buy',
-        intent: 'High-impact runner looking for bounce-free sports bras',
-        volume: 'High',
-        queryBuilder: () => `most supportive sports bra for running and high impact workouts`
-      },
-      {
-        category: 'ingredient_spec',
-        intent: 'Consumer looking for breathable anti-chafing activewear materials',
-        volume: 'Medium',
-        queryBuilder: () => `best moisture-wicking seamless activewear for humid hot weather`
-      },
-      {
-        category: 'comparison',
-        intent: 'Direct comparison against market leaders like Lululemon or BlissClub',
-        volume: 'High',
-        queryBuilder: () => `is ${brand} activewear comparable to Gymshark or BlissClub in fabric quality?`
-      },
-      {
-        category: 'intent_buy',
-        intent: 'Yoga and pilates practitioner seeking buttery soft flare pants',
-        volume: 'High',
-        queryBuilder: () => `top comfortable workout flare pants with deep pockets ${geo}`
-      },
-      {
-        category: 'gift_occasion',
-        intent: 'Fitness gift pack inquiry',
-        volume: 'Medium',
-        queryBuilder: () => `best activewear gift set for women under ${currencySymbol}${isIndia ? '2500' : '80'}`
-      },
-      {
-        category: 'comparison',
-        intent: 'Community forum sentiment on durability after multiple washes',
-        volume: 'Trending',
-        queryBuilder: () => `does ${brand} leggings roll down or pill after washing? Reddit review summary`
-      },
-      {
-        category: 'budget',
-        intent: 'Budget workout t-shirt and tank recommendations',
-        volume: 'Medium',
-        queryBuilder: () => `best lightweight gym t-shirts and tanks under ${currencySymbol}${isIndia ? '1000' : '35'} ${geo}`
-      },
-      {
-        category: 'ingredient_spec',
-        intent: 'Eco-conscious consumer looking for recycled or bamboo activewear',
-        volume: 'Medium',
-        queryBuilder: () => `best sustainable and organic bamboo workout clothes brands`
-      },
-      {
-        category: 'intent_buy',
-        intent: 'Overall best D2C activewear brands ranking',
-        volume: 'High',
-        queryBuilder: () => `top 5 D2C athleisure brands in India for comfort and daily wear`
-      }
-    ];
-  } else {
-    // Generic high-intent e-commerce buyer queries
-    templates = [
-      {
-        category: 'budget',
-        intent: 'Price vs quality shopping query',
-        volume: 'High',
-        queryBuilder: () => `best high quality ${niche} products under ${currencySymbol}${isIndia ? '1500' : '50'} ${geo}`
-      },
-      {
-        category: 'intent_buy',
-        intent: 'Top 3 authoritative recommendations',
-        volume: 'High',
-        queryBuilder: () => `top 3 recommended brands for ${niche} with verified reviews`
-      },
-      {
-        category: 'ingredient_spec',
-        intent: 'Materials, durability and specifications check',
-        volume: 'Medium',
-        queryBuilder: () => `what is the most durable material and build to look for when buying ${niche}?`
-      },
-      {
-        category: 'comparison',
-        intent: 'Brand reputation check compared to market giants',
-        volume: 'Medium',
-        queryBuilder: () => `how does ${brand} compare to mainstream alternatives in ${niche}?`
-      },
-      {
-        category: 'intent_buy',
-        intent: 'Best overall pick for beginners',
-        volume: 'High',
-        queryBuilder: () => `best beginner-friendly ${niche} essentials bundle ${geo}`
-      },
-      {
-        category: 'gift_occasion',
-        intent: 'Gift recommendation search',
-        volume: 'Medium',
-        queryBuilder: () => `best luxury yet affordable ${niche} gift ideas under ${currencySymbol}${isIndia ? '2000' : '65'}`
-      },
-      {
-        category: 'comparison',
-        intent: 'Reddit discussion search',
-        volume: 'Trending',
-        queryBuilder: () => `what does Reddit say about ${brand}? Honest opinions and user reviews`
-      },
-      {
-        category: 'budget',
-        intent: 'Value for money verdict',
-        volume: 'Medium',
-        queryBuilder: () => `cheapest reliable ${niche} options that do not compromise on quality`
-      },
-      {
-        category: 'ingredient_spec',
-        intent: 'Safety, certification, and warranty standards',
-        volume: 'Medium',
-        queryBuilder: () => `which ${niche} brands offer the best warranty and return policy?`
-      },
-      {
-        category: 'intent_buy',
-        intent: 'Overall editorial ranking',
-        volume: 'High',
-        queryBuilder: () => `top 5 innovative independent brands in ${niche} to watch this year`
-      }
-    ];
+    } catch (e) {
+      console.warn('prompt generation via LLM failed, using templates', (e as Error).message);
+    }
   }
+  const niche = nicheHint?.trim() || guessNiche(s);
+  return { niche, prompts: templatePrompts(s, niche, count) };
+}
 
-  return templates.map((t, idx) => ({
-    id: `prompt-${idx + 1}`,
-    query: t.queryBuilder(),
-    category: t.category,
-    intent: t.intent,
-    volume_estimate: t.volume
-  }));
+function guessNiche(s: StoreSnapshot): string {
+  const tags = s.products.flatMap((p) => p.tags).map((t) => t.toLowerCase());
+  const top = mostCommon(tags.filter((t) => t.length > 2 && t.length < 30));
+  return top || s.homepageTitle.split(/[|–—-]/).pop()?.trim().slice(0, 60) || 'products';
+}
+
+function mostCommon(xs: string[]): string | null {
+  const m = new Map<string, number>();
+  xs.forEach((x) => m.set(x, (m.get(x) || 0) + 1));
+  return [...m.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+}
+
+/** Neutral fallback prompts built from the niche and real prices. */
+export function templatePrompts(s: StoreSnapshot, niche: string, count: number): BuyerPrompt[] {
+  const sym = SYMBOL[s.currency] || '';
+  const prices = s.products.map((p) => Number(p.price)).filter((n) => Number.isFinite(n) && n > 0).sort((a, b) => a - b);
+  const median = prices.length ? prices[Math.floor(prices.length / 2)] : 0;
+  const budget = median ? `${sym}${roundUp(median * 1.3)}` : '';
+  const where = COUNTRY_NAME[s.currency] ? ` in ${COUNTRY_NAME[s.currency]}` : '';
+  const product = s.products[0]?.title?.split(/[-–|,]/)[0]?.trim();
+  const t: Array<[BuyerPrompt['category'], string, string]> = [
+    ['intent_buy', `best ${niche} brands${where}`, 'Shopper comparing brands before buying'],
+    ['budget', budget ? `best ${niche} under ${budget}` : `best affordable ${niche}`, 'Price-conscious buyer'],
+    ['intent_buy', `top rated ${niche} with good reviews`, 'Buyer looking for social proof'],
+    ['comparison', `${s.storeName} reviews: is it worth buying?`, 'Brand check before purchase'],
+    ['spec', `what should I look for when buying ${niche}?`, 'First-time buyer researching'],
+    ['gift_occasion', `${niche} gift ideas${where}`, 'Gift shopper'],
+    ['intent_buy', product ? `where to buy ${product.toLowerCase()} online` : `where to buy ${niche} online`, 'Ready-to-buy shopper'],
+    ['comparison', `${s.storeName} alternatives`, 'Shopper comparing options'],
+    ['intent_buy', `best ${niche} for beginners`, 'New customer to the category'],
+    ['spec', `most durable ${niche} worth the money`, 'Quality-focused buyer'],
+  ];
+  return t.slice(0, count).map(([category, query, intent], i) => ({ id: `prompt-${i + 1}`, query, category, intent }));
+}
+
+function roundUp(n: number): number {
+  const step = n > 1000 ? 500 : n > 100 ? 50 : 5;
+  return Math.ceil(n / step) * step;
 }

@@ -1,0 +1,129 @@
+# AskRank: what only you can do
+
+Everything in the code is done and tested locally (see "What was tested" at the bottom).
+These are the steps that need your accounts, money, identity or judgement. Do them in this order:
+step 1 takes the longest, so start it today.
+
+Total time: about 2–3 hours of your work, plus waiting for Dodo to verify your business.
+Monthly fixed cost: about $20 (Vercel Pro) + a domain. Everything else is pay-as-you-go.
+
+---
+
+## 1. Dodo Payments: start verification first (takes 1–5 days)
+
+Dodo is the merchant of record: it charges customers in INR and USD, handles GST/VAT and pays out to your Indian bank account.
+
+1. Sign up at https://dodopayments.com and complete business verification (KYC, PAN, bank account). Live payments only work after approval.
+   Dodo reviews your website, so do step 3 (deploy) while you wait; the Privacy and Terms pages already exist.
+2. In **test mode**, create these products (Products → Add product). Use these exact prices, since the website shows them:
+
+   | Product | Type | Price | Env variable for its ID |
+   |---|---|---|---|
+   | AskRank Deep Audit | One-time | $19 | `DODO_PRODUCT_REPORT_USD` |
+   | AskRank Weekly Monitor | Subscription, monthly | $29 | `DODO_PRODUCT_MONITOR_USD` |
+   | AskRank Agency | Subscription, monthly | $99 | `DODO_PRODUCT_AGENCY_USD` |
+   | *(optional)* Deep Audit India | One-time | ₹1,499 | `DODO_PRODUCT_REPORT_INR` |
+   | *(optional)* Weekly Monitor India | Subscription, monthly | ₹1,999 | `DODO_PRODUCT_MONITOR_INR` |
+   | *(optional)* Agency India | Subscription, monthly | ₹7,999 | `DODO_PRODUCT_AGENCY_INR` |
+
+   If you skip the ₹ products, Indian buyers are charged the $ product.
+   If you change a price, also change it in `src/lib/plans.ts` (`PRICES`) so the site shows the same number.
+3. Developer → API keys: create a key → `DODO_PAYMENTS_API_KEY`.
+4. Developer → Webhooks: add the endpoint `https://YOUR-DOMAIN/api/billing/webhook`.
+   Subscribe to **payment.succeeded** and all **subscription.\*** events.
+   Copy the signing secret (starts with `whsec_`) → `DODO_PAYMENTS_WEBHOOK_KEY`.
+5. Keep `DODO_PAYMENTS_ENVIRONMENT=test_mode` until step 8.
+
+## 2. Accounts and API keys (about 30 minutes)
+
+| Service | What to do | Env variable(s) |
+|---|---|---|
+| **Domain** | Buy one (e.g. askrank.ai, or whatever is free) | `APP_URL=https://yourdomain` |
+| **OpenAI** | platform.openai.com → add billing → create a key. **Set a monthly spend limit** (Settings → Limits), e.g. $50 to start | `OPENAI_API_KEY` |
+| **Perplexity** | perplexity.ai/settings/api → add credit → create a key | `PERPLEXITY_API_KEY` |
+| **Google Gemini** | aistudio.google.com → Get API key. The free tier works for testing; enable billing before launch, or grounded answers get rate-limited | `GEMINI_API_KEY` |
+| **Resend** (email) | resend.com → Domains → add your domain → add the DNS records it shows → API key | `RESEND_API_KEY`, `EMAIL_FROM="AskRank <hello@yourdomain>"` |
+
+You need at least one AI key. With none, the scan form says scanning is off; it never shows fake results.
+
+**Rough AI cost** (check each provider's pricing page, since prices change):
+- One free scan (10 questions × 3 engines, plus prompt-writing and answer-reading calls): **about $0.50–$1**.
+- One Weekly Monitor store (20 questions × 3 engines × ~4 runs a month): **about $5–10/month** against $29 revenue.
+- The defaults limit free scans to 3 per visitor per day and 150 per day in total (worst case about $150/day). Lower `FREE_SCANS_PER_DAY` until you have paying customers, e.g. 40.
+- To cut cost, run 2 engines: `ENABLED_ENGINES=openai_search,perplexity`.
+
+## 3. Deploy on Vercel + Neon (about 20 minutes)
+
+1. Give Claude push access to GitHub so the `deployment-ready` branch can be pushed (see "GitHub access" below). Merge it into `main`.
+2. vercel.com → **upgrade to Pro ($20/month)**. Hobby is for non-commercial use only and allows a cron job only once a day; the weekly monitor needs an hourly cron.
+3. Add New → Project → import `Vpcodes11/Ask-Rank`.
+4. Project → Storage → **Create Database → Neon (Postgres)**. This sets `DATABASE_URL` and `DATABASE_URL_UNPOOLED` for you.
+5. Project → Settings → Environment Variables: add everything from `.env.example`. Generate the two secrets with:
+   ```
+   openssl rand -hex 32
+   ```
+   one for `AUTH_SECRET` and one for `CRON_SECRET`.
+6. Deploy. The build runs the database migrations automatically.
+7. Settings → Domains: add your domain and set the DNS records Vercel shows.
+8. Settings → Functions: confirm **Fluid compute** is on (it is by default on new projects). Scans run up to 5 minutes in the background.
+
+## 4. Check the AI results by eye (15 minutes) before anyone pays
+
+The engine code was tested against each API's documented response format, not against the live APIs: this build machine has no internet access to them. So:
+
+1. Run a free scan of **your own store** and of 2–3 real Shopify stores you know.
+2. Open each question and read the answers. Check:
+   - The answers are real and the cited links open.
+   - "Named" / "Not named" is right for the store.
+   - The competitor list contains brand names, not junk.
+3. If a scan fails, check Vercel → Logs. The usual cause is a wrong key or a model name your account can't use.
+   You can change models with the optional `*_MODEL` variables in `.env.example`, without touching code.
+
+## 5. Test a payment end to end (10 minutes, still in test mode)
+
+1. On a scan, click **Get the Deep Audit** and pay with Dodo's test card (Dodo docs → Testing).
+2. You should land back on the report with the Deep Audit unlocked and get an email.
+3. Sign in (top right), go to Pricing, start **Weekly Monitor**, add your store, and wait for the first run.
+4. In the dashboard click **Manage billing** → cancel → refresh: the plan drops to Free.
+
+## 6. Legal and brand checks (30 minutes, your call)
+
+- [ ] Read `/privacy` and `/terms`. They are plain-English starting points, **not legal advice**. Set `NEXT_PUBLIC_COMPANY_NAME` to your legal business name and `NEXT_PUBLIC_SUPPORT_EMAIL` to a mailbox you read.
+- [ ] **Hero photos** (`public/images/*.jpg`): I don't know where they came from. If you can't confirm you have the rights to use them, replace them.
+- [ ] **Landing page design**: the original was modelled on Railroad.ai. A reference screenshot of their site was in the repo, and the layout, glass input and cloud logo still follow it. I replaced the copied headline and deleted the screenshot. Consider changing the hero layout so it doesn't look like their site.
+- [ ] Unlocking a report collects an email. The form says you may email them about their results. Only send cold follow-ups in ways that respect anti-spam law where they are (India's DPDP Act, the US CAN-SPAM Act, GDPR for the EU/UK).
+
+## 7. Go live
+
+1. Once Dodo approves your business: switch Dodo to **live mode** and recreate the products and webhook there. Live and test have separate IDs and keys.
+2. On Vercel, update `DODO_PAYMENTS_ENVIRONMENT=live_mode`, the live `DODO_PAYMENTS_API_KEY`, `DODO_PAYMENTS_WEBHOOK_KEY` and all the `DODO_PRODUCT_*` IDs, then redeploy.
+3. Make one real ₹1,499 / $19 purchase yourself and refund it from the Dodo dashboard.
+
+---
+
+## GitHub access (needed before I can push)
+
+This session could clone the repo but **pushes are refused**: the Claude GitHub App doesn't have access to `Vpcodes11/Ask-Rank`.
+Fix: go to https://claude.ai/connect-github, reconnect GitHub, and make sure the Claude app is installed on `Ask-Rank`. Then tell me and I'll push the `deployment-ready` branch.
+
+## What was tested
+
+Locally, with Postgres and the production build (`next start`), with OpenAI, Perplexity, Gemini, Dodo and Resend replaced by mock responses in their documented formats:
+
+- **Free scan:** real store reading (name, currency, products), prompt writing, 3 engines, brand extraction, score, cached re-scan.
+- **Locking:** the server only sends 3 of 10 answers before email unlock.
+- **Rate limits:** per-IP limit and daily cap.
+- **Unreachable store:** shows a clear error.
+- **Deep Audit purchase:**
+  - the audit stays locked before payment
+  - payments that are still processing, or were made for another scan, are rejected
+  - a successful payment unlocks it exactly once, even when the redirect repeats
+  - the receipt email is sent
+- **Deep Audit contents:** product page checks, flags review markup without a count, competitor citation sites, llms.txt, JSON-LD.
+- **Sign-in:** magic link works once, isn't used up by opening the email, and blocks open redirects.
+- **Subscription:** checkout, return (someone else's subscription is rejected), plan limits, adding a store starts a 20-question run, "Run now" limited to once a day.
+- **Webhooks:** bad signature rejected, replay ignored, cancellation downgrades the plan.
+- **Weekly cron:** needs the secret, runs due stores, reschedules them a week out, sends the weekly email.
+- **Content Fixer:** description, FAQ and JSON-LD drafts; marking drafts applied; owner-only access.
+- **Output:** PDF page, PNG share card (1200×630), mobile layout without horizontal scroll.
+- **Unit tests:** `npm test`, 24 tests (engine parsers, brand matching, scoring, webhook signatures).
