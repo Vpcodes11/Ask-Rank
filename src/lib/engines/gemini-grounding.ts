@@ -32,13 +32,15 @@ export class GeminiGroundingEngine implements AIEngine {
 export function parseGemini(data: any): EngineAnswer {
   const cand = data?.candidates?.[0];
   const text = (cand?.content?.parts || []).map((p: { text?: string }) => p.text || '').join('').trim();
-  const chunks: Array<{ web?: { uri?: string; title?: string } }> = cand?.groundingMetadata?.groundingChunks || [];
-  // Grounding links are Google redirect URLs; the chunk title is the source's domain.
+  const chunks: Array<{ web?: { uri?: string; title?: string; domain?: string } }> = cand?.groundingMetadata?.groundingChunks || [];
+  // Grounding links are Google redirect URLs. The source site is in `web.domain`
+  // (newer responses) or the chunk title (older ones), never in the redirect URL.
   const sources: Array<EngineSource | null> = chunks.map((c) => {
     const uri = c.web?.uri;
     const title = (c.web?.title || '').trim().toLowerCase();
     if (!uri) return null;
-    const domain = /^[a-z0-9.-]+\.[a-z]{2,}$/.test(title) ? title.replace(/^www\./, '') : safeHost(uri);
+    const given = (c.web?.domain || '').trim().toLowerCase().replace(/^www\./, '');
+    const domain = given || (/^[a-z0-9.-]+\.[a-z]{2,}$/.test(title) ? title.replace(/^www\./, '') : safeHost(uri));
     return domain ? { url: uri, title: c.web?.title || domain, domain } : null;
   });
   return { text, sources: dedupeSources(sources) };

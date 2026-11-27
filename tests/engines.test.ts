@@ -49,6 +49,20 @@ test('gemini: grounding chunks use the title as the domain', () => {
   assert.equal(out.sources[0].domain, 'nykaa.com');
 });
 
+test('gemini: prefers the explicit web.domain field', () => {
+  const out = parseGemini({
+    candidates: [{ content: { parts: [{ text: 'x' }] }, groundingMetadata: { groundingChunks: [{ web: { uri: 'https://vertexaisearch.cloud.google.com/r/2', title: 'Best leggings 2026', domain: 'www.myntra.com' } }] } }],
+  });
+  assert.equal(out.sources[0].domain, 'myntra.com');
+});
+
+test('openai text calls: reasoning models skip temperature', async () => {
+  const { isReasoningModel } = await import('../src/lib/llm');
+  assert.ok(isReasoningModel('gpt-5-mini'));
+  assert.ok(isReasoningModel('o4-mini'));
+  assert.ok(!isReasoningModel('gpt-4.1-mini'));
+});
+
 test('parsers tolerate empty payloads', () => {
   assert.deepEqual(parsePerplexity({}), { text: '', sources: [] });
   assert.deepEqual(parseOpenAIResponses({}), { text: '', sources: [] });

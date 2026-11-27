@@ -66,17 +66,23 @@ You need at least one AI key. With none, the scan form says scanning is off; it 
 6. Deploy. The build runs the database migrations automatically.
 7. Settings → Domains: add your domain and set the DNS records Vercel shows.
 8. Settings → Functions: confirm **Fluid compute** is on (it is by default on new projects). Scans run up to 5 minutes in the background.
+9. Open `https://YOUR-DOMAIN/api/health?key=YOUR_CRON_SECRET`. It lists every setting as present or missing (never the values). Fix anything missing, then redeploy.
 
 ## 4. Check the AI results by eye (15 minutes) before anyone pays
 
-The engine code was tested against each API's documented response format, not against the live APIs: this build machine has no internet access to them. So:
+The engine and payment code was checked field by field against each provider's official SDK types (OpenAI, Perplexity, Google Gen AI and Dodo Payments, as published on npm in November 2026). It was not run against the live APIs, because this build machine can't reach them. So:
 
-1. Run a free scan of **your own store** and of 2–3 real Shopify stores you know.
-2. Open each question and read the answers. Check:
+1. From your computer, in the repo folder, run (it uses about $0.50–$1 of API credit):
+   ```
+   node scripts/smoke.mjs https://YOUR-DOMAIN YOUR_CRON_SECRET yourstore.com
+   ```
+   It lists any missing settings, runs a real scan and prints what each engine answered.
+2. Run a free scan on the website of **your own store** and of 2–3 real Shopify stores you know.
+3. Open each question and read the answers. Check:
    - The answers are real and the cited links open.
    - "Named" / "Not named" is right for the store.
    - The competitor list contains brand names, not junk.
-3. If a scan fails, check Vercel → Logs. The usual cause is a wrong key or a model name your account can't use.
+4. If a scan fails, check Vercel → Logs. The usual cause is a wrong key or a model name your account can't use.
    You can change models with the optional `*_MODEL` variables in `.env.example`, without touching code.
 
 ## 5. Test a payment end to end (10 minutes, still in test mode)
@@ -126,4 +132,7 @@ Locally, with Postgres and the production build (`next start`), with OpenAI, Per
 - **Weekly cron:** needs the secret, runs due stores, reschedules them a week out, sends the weekly email.
 - **Content Fixer:** description, FAQ and JSON-LD drafts; marking drafts applied; owner-only access.
 - **Output:** PDF page, PNG share card (1200×630), mobile layout without horizontal scroll.
-- **Unit tests:** `npm test`, 24 tests (engine parsers, brand matching, scoring, webhook signatures).
+- **Unit tests:** `npm test`, 26 tests (engine parsers, brand matching, scoring, webhook signatures).
+- **Fresh-database deploy:** `npm run build` against an empty Postgres applies the migration and builds, as Vercel will.
+- **API formats:** request and response fields checked against the official SDK types for Dodo Payments, OpenAI, Perplexity and Google Gen AI (endpoints, field names, statuses, webhook event names, Standard Webhooks signatures).
+- **CI:** GitHub Actions runs typecheck, tests and a full build with Postgres on every push and pull request.

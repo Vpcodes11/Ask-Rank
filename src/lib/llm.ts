@@ -34,15 +34,21 @@ export function parseJsonLoose<T>(text: string): T {
   }
 }
 
+/** Reasoning models (gpt-5 family, o-series) reject `temperature` and need room for reasoning tokens. */
+export const isReasoningModel = (model: string) => /^(gpt-5|gpt-6|o\d)/.test(model);
+
 async function openaiJson(system: string, user: string, maxTokens = 2000): Promise<string> {
+  const model = process.env.OPENAI_TEXT_MODEL || 'gpt-4.1-mini';
+  const reasoning = isReasoningModel(model);
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
     body: JSON.stringify({
-      model: process.env.OPENAI_TEXT_MODEL || 'gpt-4.1-mini',
+      model,
       response_format: { type: 'json_object' },
-      max_tokens: maxTokens,
-      temperature: 0.2,
+      // max_tokens is deprecated; max_completion_tokens works on every current model.
+      max_completion_tokens: reasoning ? maxTokens * 4 : maxTokens,
+      ...(reasoning ? { reasoning_effort: 'low' } : { temperature: 0.2 }),
       messages: [
         { role: 'system', content: system },
         { role: 'user', content: user },
