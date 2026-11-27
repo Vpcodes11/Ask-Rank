@@ -1,457 +1,374 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import {
-  Sparkles,
-  Share2,
-  Lock,
-  Unlock,
-  CheckCircle2,
-  XCircle,
-  ExternalLink,
-  ChevronDown,
-  ChevronUp,
-  Store,
-  Layers,
-  ArrowRight,
-  TrendingUp,
-  AlertTriangle,
-  FileCheck2,
-  Download,
-  Mail
-} from 'lucide-react';
+import { CheckCircle2, XCircle, ExternalLink, ChevronDown, ChevronUp, Lock, Mail, Download, Share2, AlertTriangle, Loader2, Copy } from 'lucide-react';
 import ScoreGauge from '@/components/ScoreGauge';
 import EngineBadge from '@/components/EngineBadge';
-import ShareCardModal from '@/components/ShareCardModal';
-import EmailUnlockModal from '@/components/EmailUnlockModal';
-import { ScanRecord, PromptRunResult } from '@/lib/types';
+import DeepAuditPanel from '@/components/DeepAuditPanel';
+import { formatPrice, type Currency } from '@/lib/plans';
+import type { PromptRunResult, ScanView } from '@/lib/types';
 
-interface ScanReportClientProps {
-  initialScan: ScanRecord;
-}
+export default function ScanReportClient({ initialScan, notice }: { initialScan: ScanView; notice?: string | null }) {
+  const [scan, setScan] = useState<ScanView>(initialScan);
+  const [expanded, setExpanded] = useState<string | null>(initialScan.prompts[0]?.id ?? null);
 
-export default function ScanReportClient({ initialScan }: ScanReportClientProps) {
-  const [scan, setScan] = useState<ScanRecord>(initialScan);
-  const [expandedPrompt, setExpandedPrompt] = useState<string | null>('prompt-1');
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [showEmailModal, setShowEmailModal] = useState(false);
+  // Poll while the scan is running.
+  useEffect(() => {
+    if (scan.status !== 'running') return;
+    const t = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/scan/${scan.id}`, { cache: 'no-store' });
+        if (res.ok) setScan((await res.json()).scan);
+      } catch {
+        /* keep polling */
+      }
+    }, 3000);
+    return () => clearInterval(t);
+  }, [scan.status, scan.id]);
 
-  const isUnlocked = scan.unlocked;
-  const visiblePrompts = isUnlocked ? scan.prompts : scan.prompts.slice(0, 3);
-  const lockedPrompts = isUnlocked ? [] : scan.prompts.slice(3);
+  if (scan.status === 'running') return <Running scan={scan} />;
+  if (scan.status === 'failed') return <Failed scan={scan} />;
 
-  // Group results by prompt_id
-  const resultsByPrompt = new Map<string, PromptRunResult[]>();
-  for (const r of scan.results) {
-    const list = resultsByPrompt.get(r.prompt_id) || [];
-    list.push(r);
-    resultsByPrompt.set(r.prompt_id, list);
-  }
+  const byPrompt = new Map<string, PromptRunResult[]>();
+  for (const r of scan.results) byPrompt.set(r.prompt_id, [...(byPrompt.get(r.prompt_id) || []), r]);
+  const locked = scan.prompts.filter((p) => !scan.visiblePromptIds.includes(p.id));
+  const b = scan.breakdown;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      
-      {/* Top Banner & Title Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-8 border-b border-slate-800">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      {notice && <div className="mb-6 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-sm">{notice}</div>}
+
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-8 border-b border-slate-800">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 uppercase tracking-wide">
-              Free AI Visibility Audit
-            </span>
-            <span className="text-xs text-slate-500 font-mono">ID: {scan.id}</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white mt-1.5 tracking-tight">
-            {scan.store_name}
-          </h1>
+          <span className="text-[10px] font-bold uppercase tracking-wide text-emerald-400">{scan.kind === 'monitor' ? 'Weekly run' : 'AI visibility scan'}</span>
+          <h1 className="text-2xl sm:text-3xl font-black text-white mt-1">{scan.storeName}</h1>
           <p className="text-xs text-slate-400 mt-1">
-            Store URL: <a href={scan.url} target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-emerald-400 underline">{scan.clean_domain}</a> • Niche: <span className="text-emerald-400 font-medium">{scan.niche}</span>
+            <a href={scan.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400">{scan.domain}</a>
+            {scan.niche && <> · {scan.niche}</>} · {new Date(scan.finishedAt || scan.createdAt).toLocaleString()}
           </p>
         </div>
-
-        <div className="flex flex-wrap items-center gap-2.5">
-          <button
-            onClick={() => setShowShareModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-colors"
-          >
-            <Share2 className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Share Result Card (OG)</span>
-          </button>
-
-          <a
-            href={`/api/export/pdf?scan_id=${scan.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-colors"
-          >
-            <Download className="w-3.5 h-3.5 text-emerald-400" />
-            <span>PDF Summary</span>
+        <div className="flex flex-wrap gap-2">
+          <ShareButton scan={scan} />
+          <a href={`/api/export/pdf?scan_id=${scan.id}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold">
+            <Download className="w-3.5 h-3.5 text-emerald-400" /> PDF
           </a>
-
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-md shadow-emerald-500/20 transition-all hover:scale-[1.02]"
-          >
-            <Store className="w-3.5 h-3.5" />
-            <span>Connect Store & Fix Gaps</span>
-          </Link>
         </div>
       </div>
 
-      {/* Main Score & Breakdown Card */}
-      <div className="my-8 grid grid-cols-1 lg:grid-cols-12 gap-8 bg-slate-900/60 border border-slate-800 rounded-3xl p-6 sm:p-8 backdrop-blur-sm">
-        
-        {/* Left Column: Big Radial Gauge */}
-        <div className="lg:col-span-5 flex flex-col items-center justify-center lg:border-r border-slate-800/80 lg:pr-8">
-          <ScoreGauge score={scan.score} breakdown={scan.breakdown} size="lg" showBreakdown={false} />
-          <p className="text-xs text-slate-400 text-center max-w-sm mt-4 leading-relaxed">
-            Overall GEO rating based on mention rate, recommendation position, engine diversity, and authoritative citation links.
+      <section className="my-8 grid grid-cols-1 lg:grid-cols-12 gap-8 bg-slate-900/60 border border-slate-800 rounded-3xl p-6 sm:p-8">
+        <div className="lg:col-span-4 flex flex-col items-center justify-center">
+          <ScoreGauge score={scan.score ?? 0} size="lg" />
+        </div>
+        <div className="lg:col-span-8 space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <Metric label="Named in answers" value={`${b?.mention_rate ?? 0}%`} hint="Answers that mention you" />
+            <Metric label="Avg. rank" value={b?.avg_position ? `#${b.avg_position}` : '–'} hint="When you are named" />
+            <Metric label="Engines naming you" value={`${b?.engine_diversity ?? 0}%`} hint="At least once" />
+            <Metric label="Cite your site" value={`${b?.citation_rate ?? 0}%`} hint="Answers linking to you" />
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[11px] text-slate-400">Asked live:</span>
+            {scan.engines.map((e) => (
+              <EngineBadge key={e} engine={e} />
+            ))}
+          </div>
+          <p className="text-[11px] text-slate-500">
+            Real answers from each engine&apos;s API with live web search. AI answers vary between runs and locations, so treat one scan as a snapshot.
           </p>
         </div>
+      </section>
 
-        {/* Right Column: Breakdown & Quick Stats */}
-        <div className="lg:col-span-7 flex flex-col justify-center space-y-4">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider text-slate-300">
-            AI Assistant Performance Breakdown
-          </h3>
+      <section className="my-10">
+        <h2 className="text-xl font-black text-white">What shoppers asked, and what AI answered</h2>
+        <p className="text-xs text-slate-400 mt-1 mb-6">
+          {scan.prompts.length} buyer questions for your category.
+          {locked.length > 0 && <span className="text-emerald-400"> Showing {scan.visiblePromptIds.length} free · {locked.length} locked</span>}
+        </p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
-              <span className="text-[10px] text-slate-400 uppercase font-semibold">Mention Rate</span>
-              <div className="text-xl font-black text-white mt-1">{scan.breakdown.mention_rate}%</div>
-              <span className="text-[10px] text-slate-500">Appeared in recommendations</span>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
-              <span className="text-[10px] text-slate-400 uppercase font-semibold">Avg Position</span>
-              <div className="text-xl font-black text-emerald-400 mt-1">
-                {scan.breakdown.avg_position ? `#${scan.breakdown.avg_position}` : 'N/A'}
-              </div>
-              <span className="text-[10px] text-slate-500">Rank when cited</span>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
-              <span className="text-[10px] text-slate-400 uppercase font-semibold">Engine Diversity</span>
-              <div className="text-xl font-black text-teal-400 mt-1">{scan.breakdown.engine_diversity}%</div>
-              <span className="text-[10px] text-slate-500">Cross-engine reach</span>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
-              <span className="text-[10px] text-slate-400 uppercase font-semibold">Source Coverage</span>
-              <div className="text-xl font-black text-purple-400 mt-1">{scan.breakdown.source_authority}%</div>
-              <span className="text-[10px] text-slate-500">Editorial & Reddit depth</span>
-            </div>
-          </div>
-
-          {/* Active Engines Tested */}
-          <div className="pt-2">
-            <span className="text-[11px] text-slate-400 mb-2 block font-medium">Search-Grounded AI Engines Evaluated:</span>
-            <div className="flex flex-wrap items-center gap-2">
-              <EngineBadge engine="perplexity" />
-              <EngineBadge engine="openai_search" />
-              <EngineBadge engine="gemini_grounding" />
-              <EngineBadge engine="google_aio" />
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Prompts Section */}
-      <div className="my-10">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-          <div>
-            <h2 className="text-xl font-black text-white">Commercial Buyer Prompts Test Results</h2>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Testing 10 high-intent shopping queries with real-time web retrieval.
-              {!isUnlocked && (
-                <span className="text-emerald-400 ml-1 font-semibold">
-                  (Showing 3 free prompts • 7 locked)
-                </span>
-              )}
-            </p>
-          </div>
-
-          {!isUnlocked && (
-            <button
-              onClick={() => setShowEmailModal(true)}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-400 text-xs font-bold transition-colors shrink-0"
-            >
-              <Unlock className="w-3.5 h-3.5" />
-              <span>Unlock 7 Hidden Prompts (Free with email)</span>
-            </button>
-          )}
-        </div>
-
-        {/* Visible Prompts List */}
         <div className="space-y-4">
-          {visiblePrompts.map((p, idx) => {
-            const promptResults = resultsByPrompt.get(p.id) || [];
-            const isExpanded = expandedPrompt === p.id;
-            const anyMentioned = promptResults.some(r => r.mentioned);
-
-            return (
-              <div
-                key={p.id}
-                className="rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden transition-all"
-              >
-                {/* Accordion Header */}
-                <div
-                  onClick={() => setExpandedPrompt(isExpanded ? null : p.id)}
-                  className="p-4 sm:p-5 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-800/40 transition-colors"
-                >
-                  <div className="flex items-start gap-3 min-w-0">
-                    <span className="w-6 h-6 rounded-lg bg-slate-800 text-slate-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
-                      {idx + 1}
-                    </span>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-400 uppercase tracking-wide">
-                          {p.category}
-                        </span>
-                        <span className="text-[10px] text-slate-500">Volume: {p.volume_estimate}</span>
+          {scan.prompts
+            .filter((p) => scan.visiblePromptIds.includes(p.id))
+            .map((p, i) => {
+              const rs = byPrompt.get(p.id) || [];
+              const open = expanded === p.id;
+              const named = rs.some((r) => r.mentioned);
+              return (
+                <div key={p.id} className="rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden">
+                  <button onClick={() => setExpanded(open ? null : p.id)} className="w-full p-4 sm:p-5 flex items-center justify-between gap-4 text-left hover:bg-slate-800/40">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <span className="w-6 h-6 rounded-lg bg-slate-800 text-slate-300 text-xs font-bold flex items-center justify-center shrink-0">{i + 1}</span>
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-bold text-white">&ldquo;{p.query}&rdquo;</h3>
+                        {p.intent && <p className="text-[11px] text-slate-500 mt-0.5">{p.intent}</p>}
                       </div>
-                      <h4 className="text-sm font-bold text-white mt-1 leading-snug">
-                        &quot;{p.query}&quot;
-                      </h4>
                     </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 shrink-0">
-                    {anyMentioned ? (
-                      <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Brand Recommended
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
-                        <XCircle className="w-3.5 h-3.5" /> Not Ranked
-                      </span>
-                    )}
-
-                    {isExpanded ? (
-                      <ChevronUp className="w-5 h-5 text-slate-400" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-slate-400" />
-                    )}
-                  </div>
-                </div>
-
-                {/* Expanded Engine Details */}
-                {isExpanded && (
-                  <div className="p-5 pt-0 border-t border-slate-800/60 bg-slate-950/40">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                      {promptResults.map((r) => (
-                        <div
-                          key={r.id}
-                          className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col justify-between"
-                        >
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <EngineBadge engine={r.engine} size="sm" />
-                              <span className={`text-[11px] font-bold ${r.mentioned ? 'text-emerald-400' : 'text-slate-400'}`}>
-                                {r.mentioned ? (r.position ? `Rank #${r.position}` : 'Mentioned') : 'Not Ranked'}
-                              </span>
-                            </div>
-
-                            <p className="text-xs text-slate-300 font-mono line-clamp-4 leading-relaxed bg-slate-950 p-2.5 rounded-lg border border-slate-800/60 my-2">
-                              {r.raw_response}
-                            </p>
-                          </div>
-
-                          <div className="pt-3 border-t border-slate-800/60 space-y-2 text-[11px]">
-                            {/* Competitors Named */}
-                            {r.competitors.length > 0 && (
-                              <div>
-                                <span className="text-slate-500 font-medium">Competitors Named: </span>
-                                <span className="text-slate-300">
-                                  {r.competitors.map(c => c.name).join(', ')}
-                                </span>
-                              </div>
-                            )}
-
-                            {/* Citations */}
-                            {r.sources.length > 0 && (
-                              <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                                <span className="text-slate-500 font-medium">Cited: </span>
-                                {r.sources.map((s, sIdx) => (
-                                  <a
-                                    key={sIdx}
-                                    href={s.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] flex items-center gap-1"
-                                  >
-                                    <span>{s.domain}</span>
-                                    <ExternalLink className="w-2.5 h-2.5" />
-                                  </a>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      {named ? (
+                        <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Named
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                          <XCircle className="w-3.5 h-3.5" /> Not named
+                        </span>
+                      )}
+                      {open ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
+                    </div>
+                  </button>
+                  {open && (
+                    <div className="p-5 pt-0 border-t border-slate-800/60 bg-slate-950/40 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                      {rs.map((r) => (
+                        <AnswerCard key={r.id} r={r} />
                       ))}
                     </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                  )}
+                </div>
+              );
+            })}
         </div>
 
-        {/* Blurred Teaser Section (Prompts 4 to 10) */}
-        {!isUnlocked && lockedPrompts.length > 0 && (
-          <div className="relative mt-6 rounded-3xl border border-slate-800 overflow-hidden p-6 bg-slate-900/40">
-            {/* Blurred background preview cards */}
-            <div className="filter blur-md select-none opacity-40 space-y-3 pointer-events-none">
-              {lockedPrompts.map((p, idx) => (
-                <div key={idx} className="p-4 rounded-xl bg-slate-800/50 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="w-6 h-6 rounded bg-slate-700 font-bold text-xs flex items-center justify-center">
-                      {idx + 4}
-                    </span>
-                    <span className="text-sm font-bold text-white">&quot;{p.query}&quot;</span>
-                  </div>
-                  <span className="text-xs px-2 py-1 rounded bg-slate-700 text-slate-300">
-                    Engine Outputs Locked
-                  </span>
-                </div>
+        {locked.length > 0 && <UnlockBox scan={scan} locked={locked.map((p) => p.query)} onUnlocked={setScan} />}
+      </section>
+
+      <section className="my-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
+          <h2 className="text-base font-bold text-white mb-4">Who AI recommends instead</h2>
+          {scan.competitors.length === 0 && <p className="text-xs text-slate-400">No other brands were named.</p>}
+          <div className="space-y-2">
+            {scan.competitors.map((c) => (
+              <div key={c.name} className="p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-200">{c.name}</span>
+                <span className="text-[11px] text-slate-400">
+                  {c.percentage}% of answers{c.avgPosition ? ` · avg #${c.avgPosition}` : ''}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
+          <h2 className="text-base font-bold text-white mb-4">Sites the AI answers relied on</h2>
+          {scan.sources.length === 0 && <p className="text-xs text-slate-400">No sources were cited.</p>}
+          <div className="space-y-2">
+            {scan.sources.map((s) => (
+              <a key={s.domain} href={s.url} target="_blank" rel="noopener noreferrer" className="p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 flex items-center justify-between hover:border-slate-700">
+                <span className="min-w-0">
+                  <span className="block text-xs font-bold text-slate-200 truncate">{s.domain}</span>
+                  <span className="text-[10px] text-slate-500">{s.tier}</span>
+                </span>
+                <span className="text-[11px] text-emerald-400 shrink-0">cited {s.frequency}×</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="deep-audit" className="my-12 scroll-mt-24">
+        {scan.deepAccess ? <DeepAuditPanel scanId={scan.id} /> : <BuyDeepAudit scan={scan} />}
+      </section>
+
+      {scan.kind === 'free' && (
+        <section className="my-10 p-8 rounded-3xl bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-900 border border-emerald-500/30 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div>
+            <h2 className="text-xl font-black text-white">Track this every week</h2>
+            <p className="text-xs text-slate-400 mt-1 max-w-xl">
+              Weekly Monitor re-asks 20 buyer questions on every engine each week, shows how your score and competitors move, and drafts product content fixes from your real catalog.
+            </p>
+          </div>
+          <Link href="/pricing" className="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shrink-0">
+            See plans
+          </Link>
+        </section>
+      )}
+    </div>
+  );
+}
+
+function Metric({ label, value, hint }: { label: string; value: string; hint: string }) {
+  return (
+    <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
+      <span className="text-[10px] text-slate-400 uppercase font-semibold">{label}</span>
+      <div className="text-xl font-black text-white mt-1">{value}</div>
+      <span className="text-[10px] text-slate-500">{hint}</span>
+    </div>
+  );
+}
+
+function AnswerCard({ r }: { r: PromptRunResult }) {
+  const [full, setFull] = useState(false);
+  return (
+    <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col gap-2 mt-4">
+      <div className="flex items-center justify-between">
+        <EngineBadge engine={r.engine} size="sm" />
+        <span className={`text-[11px] font-bold ${r.error ? 'text-slate-500' : r.mentioned ? 'text-emerald-400' : 'text-slate-400'}`}>
+          {r.error ? 'No answer' : r.mentioned ? (r.position ? `Ranked #${r.position}` : 'Mentioned') : 'Not named'}
+        </span>
+      </div>
+      {r.error ? (
+        <p className="text-xs text-slate-500">{r.error}</p>
+      ) : (
+        <>
+          <p className={`text-xs text-slate-300 whitespace-pre-wrap leading-relaxed bg-slate-950 p-2.5 rounded-lg border border-slate-800/60 ${full ? '' : 'line-clamp-6'}`}>
+            <AnswerText text={r.raw_response} />
+          </p>
+          <button onClick={() => setFull(!full)} className="self-start text-[11px] text-emerald-400 hover:underline">
+            {full ? 'Show less' : 'Read full answer'}
+          </button>
+          {r.competitors.length > 0 && (
+            <p className="text-[11px]">
+              <span className="text-slate-500">Recommended: </span>
+              <span className="text-slate-300">{r.competitors.slice(0, 5).map((c) => c.name).join(', ')}</span>
+            </p>
+          )}
+          {r.sources.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {r.sources.slice(0, 6).map((s) => (
+                <a key={s.url} href={s.url} target="_blank" rel="noopener noreferrer" className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] flex items-center gap-1">
+                  {s.domain} <ExternalLink className="w-2.5 h-2.5" />
+                </a>
               ))}
             </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
 
-            {/* Unlock Overlay Callout */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/70 p-6 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-3 shadow-lg shadow-emerald-500/10">
-                <Lock className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-black text-white">7 More Commercial Buyer Prompts Hidden</h3>
-              <p className="text-xs text-slate-400 max-w-md mt-1.5 mb-5 leading-relaxed">
-                Unlock the remaining queries (comparisons, ingredients, price-point queries) and see which competitors are taking your traffic.
-              </p>
-              <button
-                onClick={() => setShowEmailModal(true)}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02]"
-              >
-                <Mail className="w-4 h-4" />
-                <span>Enter Email to Unlock Full 10-Prompt Report (Free)</span>
-              </button>
-            </div>
-          </div>
-        )}
+/** Renders **bold** and drops other light markdown (headings, link syntax, citation markers). */
+function AnswerText({ text }: { text: string }) {
+  const clean = text
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '$1')
+    .replace(/\[\d+\]/g, '')
+    .replace(/(^|\s)\*(?!\*)([^*\n]+)\*(?!\*)/g, '$1$2');
+  const parts = clean.split(/\*\*([^*]+)\*\*/g);
+  return <>{parts.map((p, i) => (i % 2 ? <strong key={i} className="text-white">{p}</strong> : p))}</>;
+}
 
+function UnlockBox({ scan, locked, onUnlocked }: { scan: ScanView; locked: string[]; onUnlocked: (s: ScanView) => void }) {
+  const [email, setEmail] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/scan/${scan.id}/unlock`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not unlock');
+      onUnlocked(data.scan);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="relative mt-6 rounded-3xl border border-slate-800 overflow-hidden p-6 bg-slate-900/40">
+      <div className="blur-sm select-none opacity-40 space-y-3 pointer-events-none" aria-hidden>
+        {locked.map((q) => (
+          <div key={q} className="p-4 rounded-xl bg-slate-800/50 text-sm font-bold text-white">&ldquo;{q}&rdquo;</div>
+        ))}
       </div>
-
-      {/* Competitor Rank Matrix & Citations Section */}
-      <div className="my-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        {/* Competitor Matrix */}
-        <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-rose-400" />
-              Who AI Assistants Recommend Instead
-            </h3>
-            <span className="text-[11px] text-slate-400">In this niche</span>
-          </div>
-
-          <div className="space-y-3">
-            {scan.competitors_found.map((c, idx) => (
-              <div
-                key={idx}
-                className="p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 flex items-center justify-between"
-              >
-                <div>
-                  <div className="text-xs font-bold text-slate-200">{c.name}</div>
-                  <div className="text-[10px] text-slate-500">
-                    Recommended in {c.mentionCount} queries ({c.percentage}%)
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs font-bold text-rose-400">Avg Rank #{c.avgPosition}</div>
-                  <div className="text-[10px] text-slate-500">AI Priority Pick</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Top Citations */}
-        <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              Where Competitors Get Cited
-            </h3>
-            <span className="text-[11px] text-slate-400">PR & Backlink Targets</span>
-          </div>
-
-          <div className="space-y-3">
-            {scan.top_sources.map((s, idx) => (
-              <div
-                key={idx}
-                className="p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 flex items-center justify-between"
-              >
-                <div className="min-w-0 pr-3">
-                  <div className="text-xs font-bold text-slate-200 truncate">{s.domain}</div>
-                  <div className="text-[10px] text-slate-500">{s.authority_tier}</div>
-                </div>
-                <div className="text-right shrink-0">
-                  <span className="text-xs font-bold text-emerald-400">{s.frequency} Citations</span>
-                  <div className="text-[10px] text-slate-500">In AI Answers</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
+      <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/75 p-6 text-center">
+        <Lock className="w-6 h-6 text-emerald-400 mb-2" />
+        <h3 className="text-lg font-black text-white">{locked.length} more answers</h3>
+        <p className="text-xs text-slate-400 max-w-md mt-1 mb-4">Enter your email to see every question, every engine&apos;s full answer, and which competitors won each one. Free.</p>
+        <form onSubmit={submit} className="flex flex-col sm:flex-row gap-2 w-full max-w-md">
+          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@yourstore.com" className="flex-1 px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm focus:outline-none focus:border-emerald-500" />
+          <button disabled={busy} className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold flex items-center justify-center gap-1.5 disabled:opacity-60">
+            <Mail className="w-4 h-4" /> {busy ? 'Unlocking…' : 'Show all answers'}
+          </button>
+        </form>
+        {error && <p className="text-xs text-rose-400 mt-2">{error}</p>}
+        <p className="text-[10px] text-slate-500 mt-2">We may email you about your results. Unsubscribe any time.</p>
       </div>
+    </div>
+  );
+}
 
-      {/* Upgrade Banner */}
-      <div className="my-10 p-8 rounded-3xl bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-900 border border-emerald-500/30 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-emerald-500/5">
-        <div>
-          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 uppercase tracking-wide">
-            Next Step: Fix Your Product Data
-          </span>
-          <h3 className="text-xl font-black text-white mt-2">
-            Ready to overtake your competitors on ChatGPT & Perplexity?
-          </h3>
-          <p className="text-xs text-slate-400 mt-1 max-w-xl leading-relaxed">
-            Connect your Shopify store to run full Schema.org audits, generate AI product descriptions & FAQ blocks with human approval, and track 50 prompts weekly.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3 shrink-0">
-          <Link
-            href="/dashboard"
-            className="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02]"
-          >
-            Connect Store & Start Audit
-          </Link>
-          <Link
-            href="/pricing"
-            className="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors"
-          >
-            View Pricing
-          </Link>
-        </div>
+function BuyDeepAudit({ scan }: { scan: ScanView }) {
+  const [currency, setCurrency] = useState<Currency>('USD');
+  return (
+    <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/60 border border-slate-800 grid md:grid-cols-2 gap-6 items-center">
+      <div>
+        <span className="text-[10px] font-bold uppercase tracking-wide text-emerald-400">Deep Audit</span>
+        <h2 className="text-xl font-black text-white mt-1">Find out why AI skips {scan.storeName}</h2>
+        <ul className="text-xs text-slate-300 mt-3 space-y-1.5 list-disc pl-4">
+          <li>Structured data check of up to 10 product pages, including review markup</li>
+          <li>Content gaps per product: specs, materials, sizing, who it is for</li>
+          <li>The sites AI cites for your competitors: your outreach list</li>
+          <li>Ready-to-paste llms.txt and Product JSON-LD</li>
+          <li>All answers unlocked, plus a printable PDF</li>
+        </ul>
       </div>
+      <form action="/api/billing/checkout" method="post" className="flex flex-col items-start md:items-end gap-3">
+        <input type="hidden" name="product" value="report" />
+        <input type="hidden" name="scan_id" value={scan.id} />
+        <input type="hidden" name="currency" value={currency} />
+        <div className="flex gap-1 text-[11px]">
+          {(['USD', 'INR'] as const).map((c) => (
+            <button type="button" key={c} onClick={() => setCurrency(c)} className={`px-2.5 py-1 rounded-full border ${currency === c ? 'bg-emerald-500 text-slate-950 border-emerald-500' : 'border-slate-700 text-slate-300'}`}>
+              {c}
+            </button>
+          ))}
+        </div>
+        <div className="text-3xl font-black text-white">
+          {formatPrice('report', currency)} <span className="text-xs font-medium text-slate-400">one-time</span>
+        </div>
+        <button className="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-sm font-bold">Get the Deep Audit</button>
+      </form>
+    </div>
+  );
+}
 
-      {/* Modals */}
-      <ShareCardModal
-        scan={scan}
-        isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
-      />
+function ShareButton({ scan }: { scan: ScanView }) {
+  const [copied, setCopied] = useState(false);
+  const share = async () => {
+    const url = `${window.location.origin}/scan/${scan.id}`;
+    const text = `${scan.storeName} scored ${scan.score}/100 for AI visibility. Does ChatGPT recommend your store?`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'AskRank', text, url });
+        return;
+      } catch {
+        /* fall through to copy */
+      }
+    }
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button onClick={share} className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold">
+      {copied ? <Copy className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5 text-emerald-400" />}
+      {copied ? 'Link copied' : 'Share'}
+    </button>
+  );
+}
 
-      <EmailUnlockModal
-        scanId={scan.id}
-        storeName={scan.store_name}
-        isOpen={showEmailModal}
-        onClose={() => setShowEmailModal(false)}
-        onUnlocked={(email) => {
-          setScan({ ...scan, email, unlocked: true });
-        }}
-      />
+function Running({ scan }: { scan: ScanView }) {
+  return (
+    <div className="max-w-xl mx-auto px-4 py-24 text-center">
+      <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mx-auto" />
+      <h1 className="text-2xl font-black text-white mt-6">Scanning {scan.domain}</h1>
+      <p className="text-sm text-slate-300 mt-3">{scan.progress || 'Starting…'}</p>
+      <p className="text-xs text-slate-500 mt-6">We ask each AI engine real buyer questions with live web search. This usually takes 1–2 minutes. You can keep this page open.</p>
+    </div>
+  );
+}
 
+function Failed({ scan }: { scan: ScanView }) {
+  return (
+    <div className="max-w-xl mx-auto px-4 py-24 text-center">
+      <AlertTriangle className="w-10 h-10 text-amber-400 mx-auto" />
+      <h1 className="text-2xl font-black text-white mt-6">We couldn&apos;t finish scanning {scan.domain}</h1>
+      <p className="text-sm text-slate-300 mt-3">{scan.error || 'Something went wrong.'}</p>
+      <Link href="/#scan" className="inline-block mt-8 px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold">
+        Try again
+      </Link>
     </div>
   );
 }

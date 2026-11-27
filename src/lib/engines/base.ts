@@ -1,49 +1,48 @@
-import { EngineId, EngineSource, EngineCompetitor } from '../types';
+import { EngineId, EngineSource } from '../types';
 
-export interface EngineContext {
-  brandName: string;
-  storeUrl: string;
-  niche: string;
-  sampleProducts?: Array<{ title: string; price?: string }>;
-}
-
-export interface EngineRunOutput {
-  mentioned: boolean;
-  productMentioned: boolean;
-  mentionedProducts: string[];
-  position: number | null;
-  competitors: EngineCompetitor[];
+/** What a search-grounded AI engine answered for one buyer prompt. */
+export interface EngineAnswer {
+  text: string;
   sources: EngineSource[];
-  rawResponse: string;
 }
 
-export interface AIEngineAdapter {
+export interface AIEngine {
   id: EngineId;
   name: string;
-  provider: string;
-  description: string;
-  badgeColor: string;
-  isLiveSupported: boolean;
   isConfigured(): boolean;
-  query(prompt: string, context: EngineContext): Promise<EngineRunOutput>;
+  /** Sends the buyer prompt exactly as a shopper would type it. Throws on API errors. */
+  ask(prompt: string, opts?: { country?: string }): Promise<EngineAnswer>;
 }
 
-export class EngineRegistry {
-  private static engines: Map<EngineId, AIEngineAdapter> = new Map();
+export const ENGINE_TIMEOUT_MS = 60_000;
 
-  public static register(engine: AIEngineAdapter): void {
-    this.engines.set(engine.id, engine);
+export function domainOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '').toLowerCase();
+  } catch {
+    return '';
   }
+}
 
-  public static get(id: EngineId): AIEngineAdapter | undefined {
-    return this.engines.get(id);
-  }
+export function toSource(url: string, title?: string): EngineSource | null {
+  const domain = domainOf(url);
+  if (!domain) return null;
+  return { url, title: (title || domain).slice(0, 200), domain };
+}
 
-  public static getAll(): AIEngineAdapter[] {
-    return Array.from(this.engines.values());
+/** Removes duplicate URLs, keeps order, caps the list. */
+export function dedupeSources(list: Array<EngineSource | null>, max = 10): EngineSource[] {
+  const seen = new Set<string>();
+  const out: EngineSource[] = [];
+  for (const s of list) {
+    if (!s || seen.has(s.url)) continue;
+    seen.add(s.url);
+    out.push(s);
+    if (out.length >= max) break;
   }
+  return out;
+}
 
-  public static getActiveEngines(): AIEngineAdapter[] {
-    return Array.from(this.engines.values());
-  }
+export async function failText(res: Response): Promise<string> {
+  return `${res.status} ${(await res.text().catch(() => '')).slice(0, 300)}`;
 }

@@ -1,173 +1,87 @@
-import { PromptRunResult, ScanBreakdown, CompetitorStats, CitationSourceStats } from './types';
+import type { CitationSourceStats, CompetitorStats, PromptRunResult, ScanBreakdown } from './types';
+import { norm } from './analyze';
 
-export function calculateAIVisibilityScore(results: PromptRunResult[], brandName: string): {
+/**
+ * AI Visibility Score (0-100), from answers that came back without an error:
+ *   45% mention rate        share of answers that name the brand
+ *   25% position            rank when named (#1 = 100, #2 = 75, #3 = 55, lower/unranked = 35)
+ *   15% engine coverage     share of engines that named the brand at least once
+ *   15% citation rate       share of answers that cite the store's own site
+ */
+export function calculateAIVisibilityScore(all: PromptRunResult[]): {
   score: number;
   breakdown: ScanBreakdown;
-  competitorsFound: CompetitorStats[];
-  topSources: CitationSourceStats[];
+  competitors: CompetitorStats[];
+  sources: CitationSourceStats[];
 } {
-  if (!results || results.length === 0) {
-    return {
-      score: 15,
-      breakdown: { mention_rate: 10, avg_position: 3, engine_diversity: 15, source_authority: 20 },
-      competitorsFound: [],
-      topSources: []
-    };
+  const results = all.filter((r) => !r.error);
+  const total = results.length;
+  if (total === 0) {
+    return { score: 0, breakdown: { mention_rate: 0, avg_position: null, engine_diversity: 0, citation_rate: 0 }, competitors: [], sources: [] };
   }
 
-  // 1. Mention Rate (0 - 100)
-  const totalRuns = results.length;
-  const mentions = results.filter(r => r.mentioned).length;
-  const mentionRate = Math.round((mentions / totalRuns) * 100);
+  const mentioned = results.filter((r) => r.mentioned);
+  const mentionRate = Math.round((mentioned.length / total) * 100);
 
-  // 2. Average Position Score
-  const mentionedRuns = results.filter(r => r.mentioned && r.position !== null);
-  let positionScore = 0;
-  let avgPosition = 0;
+  const ranked = mentioned.filter((r) => r.position !== null);
+  const avgPosition = ranked.length ? Number((ranked.reduce((a, r) => a + (r.position as number), 0) / ranked.length).toFixed(1)) : null;
+  const posPoints = (p: number | null) => (p === 1 ? 100 : p === 2 ? 75 : p === 3 ? 55 : 35);
+  const positionScore = mentioned.length ? mentioned.reduce((a, r) => a + posPoints(r.position), 0) / mentioned.length : 0;
 
-  if (mentionedRuns.length > 0) {
-    const sumPos = mentionedRuns.reduce((acc, r) => acc + (r.position || 3), 0);
-    avgPosition = Number((sumPos / mentionedRuns.length).toFixed(1));
-    // Position 1 -> 100%, Position 2 -> 70%, Position 3 -> 40%
-    const normalizedPosScore = mentionedRuns.reduce((acc, r) => {
-      if (r.position === 1) return acc + 100;
-      if (r.position === 2) return acc + 70;
-      return acc + 40;
-    }, 0) / mentionedRuns.length;
-    positionScore = Math.round(normalizedPosScore);
-  } else {
-    avgPosition = 0;
-    positionScore = 0;
-  }
+  const engines = new Set(results.map((r) => r.engine));
+  const enginesWithMention = new Set(mentioned.map((r) => r.engine));
+  const engineDiversity = Math.round((enginesWithMention.size / engines.size) * 100);
 
-  // 3. Engine Diversity
-  const enginesWithMentions = new Set(results.filter(r => r.mentioned).map(r => r.engine));
-  const uniqueEnginesTotal = new Set(results.map(r => r.engine)).size || 1;
-  const engineDiversity = Math.round((enginesWithMentions.size / uniqueEnginesTotal) * 100);
+  const citationRate = Math.round((results.filter((r) => r.cited).length / total) * 100);
 
-  // 4. Source Authority & Coverage
-  const sourceDomains = new Map<string, { url: string; count: number }>();
+  const score = Math.round(mentionRate * 0.45 + positionScore * 0.25 + engineDiversity * 0.15 + citationRate * 0.15);
+
+  // Competitors: merge spelling variants by normalised name.
+  const comp = new Map<string, { name: string; count: number; ranks: number[] }>();
   for (const r of results) {
-    for (const s of r.sources) {
-      const existing = sourceDomains.get(s.domain) || { url: s.url, count: 0 };
-      existing.count += 1;
-      sourceDomains.set(s.domain, existing);
-    }
-  }
-
-  // Calculate score for source coverage
-  const highAuthDomains = ['reddit.com', 'nytimes.com', 'vogue.in', 'forbes.com', 'gq.com', 'nykaa.com', 'runnersworld.com'];
-  let authorityHits = 0;
-  for (const domain of sourceDomains.keys()) {
-    if (highAuthDomains.some(h => domain.includes(h))) {
-      authorityHits++;
-    }
-  }
-  const sourceAuthority = Math.min(100, Math.round((authorityHits * 25) + (sourceDomains.size * 5)));
-
-  // Weighted Total Score:
-  // Mentions: 40%
-  // Position: 25%
-  // Source Authority: 20%
-  // Engine Diversity: 15%
-  const composite = (mentionRate * 0.40) + (positionScore * 0.25) + (sourceAuthority * 0.20) + (engineDiversity * 0.15);
-  const score = Math.max(5, Math.min(98, Math.round(composite)));
-
-  // Competitor Aggregation
-  const competitorMap = new Map<string, { count: number; positions: number[] }>();
-  for (const r of results) {
+    const seen = new Set<string>();
     for (const c of r.competitors) {
-      const name = c.name.trim();
-      const existing = competitorMap.get(name) || { count: 0, positions: [] };
-      existing.count += 1;
-      if (c.rank) existing.positions.push(c.rank);
-      competitorMap.set(name, existing);
+      const key = norm(c.name);
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      const e = comp.get(key) || { name: c.name, count: 0, ranks: [] };
+      e.count++;
+      if (c.rank) e.ranks.push(c.rank);
+      comp.set(key, e);
     }
   }
-
-  const competitorsFound: CompetitorStats[] = Array.from(competitorMap.entries())
-    .map(([name, data]) => ({
-      name,
-      mentionCount: data.count,
-      percentage: Math.round((data.count / totalRuns) * 100),
-      avgPosition: data.positions.length > 0
-        ? Number((data.positions.reduce((a, b) => a + b, 0) / data.positions.length).toFixed(1))
-        : 2
+  const competitors = [...comp.values()]
+    .map((e) => ({
+      name: e.name,
+      mentionCount: e.count,
+      percentage: Math.round((e.count / total) * 100),
+      avgPosition: e.ranks.length ? Number((e.ranks.reduce((a, b) => a + b, 0) / e.ranks.length).toFixed(1)) : null,
     }))
     .sort((a, b) => b.mentionCount - a.mentionCount)
-    .slice(0, 6);
+    .slice(0, 10);
 
-  // Top Sources Aggregation
-  const topSources: CitationSourceStats[] = Array.from(sourceDomains.entries())
-    .map(([domain, data]) => {
-      let tier: CitationSourceStats['authority_tier'] = 'Niche Blog';
-      if (domain.includes('reddit') || domain.includes('forum') || domain.includes('quora')) {
-        tier = 'Community (Reddit/Forums)';
-      } else if (domain.includes('vogue') || domain.includes('nytimes') || domain.includes('forbes') || domain.includes('gq')) {
-        tier = 'Top Tier (PR/Media)';
-      } else if (domain.includes('amazon') || domain.includes('nykaa') || domain.includes('walmart')) {
-        tier = 'Marketplace';
-      }
-      return {
-        domain,
-        url: data.url,
-        frequency: data.count,
-        authority_tier: tier
-      };
-    })
+  const src = new Map<string, { url: string; count: number }>();
+  for (const r of results) for (const s of r.sources) {
+    const e = src.get(s.domain) || { url: s.url, count: 0 };
+    e.count++;
+    src.set(s.domain, e);
+  }
+  const sources = [...src.entries()]
+    .map(([domain, e]) => ({ domain, url: e.url, frequency: e.count, tier: tierOf(domain) }))
     .sort((a, b) => b.frequency - a.frequency)
-    .slice(0, 8);
+    .slice(0, 12);
 
-  return {
-    score,
-    breakdown: {
-      mention_rate: mentionRate,
-      avg_position: avgPosition || 3.0,
-      engine_diversity: engineDiversity,
-      source_authority: sourceAuthority
-    },
-    competitorsFound,
-    topSources
-  };
+  return { score, breakdown: { mention_rate: mentionRate, avg_position: avgPosition, engine_diversity: engineDiversity, citation_rate: citationRate }, competitors, sources };
 }
 
-export function getScoreLabel(score: number): { label: string; color: string; bg: string; description: string } {
-  if (score >= 80) {
-    return {
-      label: 'Dominant AI Presence',
-      color: 'text-emerald-500',
-      bg: 'bg-emerald-500/10 border-emerald-500/30',
-      description: 'AI engines actively prioritize your store over competitors in direct commercial buyer searches.'
-    };
-  }
-  if (score >= 60) {
-    return {
-      label: 'Strong Recognition',
-      color: 'text-teal-400',
-      bg: 'bg-teal-500/10 border-teal-500/30',
-      description: 'Frequently cited in top 3 recommendations, with high potential to capture #1 spots with structured data updates.'
-    };
-  }
-  if (score >= 40) {
-    return {
-      label: 'Moderate Footprint',
-      color: 'text-amber-400',
-      bg: 'bg-amber-500/10 border-amber-500/30',
-      description: 'Trailing top category competitors. Mentioned occasionally but missing vital specs and citations.'
-    };
-  }
-  if (score >= 20) {
-    return {
-      label: 'Low AI Visibility',
-      color: 'text-orange-400',
-      bg: 'bg-orange-500/10 border-orange-500/30',
-      description: 'AI assistants predominantly recommend your rivals. Significant content and schema gaps detected.'
-    };
-  }
-  return {
-    label: 'AI Invisible',
-    color: 'text-rose-500',
-    bg: 'bg-rose-500/10 border-rose-500/30',
-    description: 'Zero presence in conversational AI searches. AI models lack structured data to recommend your products.'
-  };
+export function tierOf(domain: string): CitationSourceStats['tier'] {
+  if (/reddit\.|quora\.|forum|community|stackexchange|discord/.test(domain)) return 'Community & forums';
+  if (/youtube\.|tiktok\.|instagram\./.test(domain)) return 'Video';
+  if (/amazon\.|flipkart\.|nykaa\.|myntra\.|walmart\.|etsy\.|ebay\.|target\.|meesho\./.test(domain)) return 'Marketplace';
+  if (/vogue|nytimes|forbes|gq|wirecutter|cnn|bbc|theguardian|businessinsider|indiatoday|ndtv|hindustantimes|timesofindia|elle|allure|cosmopolitan|healthline|verywell|byrdie|refinery29|buzzfeed|techradar|tomsguide|cnet|theverge|wired/.test(domain))
+    return 'Media & editorial';
+  if (/blog|review|guide|best|top/.test(domain)) return 'Other';
+  return 'Brand site';
 }
+
+export { getScoreLabel } from './score-label';
