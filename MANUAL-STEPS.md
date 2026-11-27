@@ -54,19 +54,22 @@ You need at least one AI key. With none, the scan form says scanning is off; it 
 
 ## 3. Deploy on Vercel + Neon (about 20 minutes)
 
-1. Give Claude push access to GitHub so the `deployment-ready` branch can be pushed (see "GitHub access" below). Merge it into `main`.
-2. vercel.com → **upgrade to Pro ($20/month)**. Hobby is for non-commercial use only and allows a cron job only once a day; the weekly monitor needs an hourly cron.
-3. Add New → Project → import `Vpcodes11/Ask-Rank`.
-4. Project → Storage → **Create Database → Neon (Postgres)**. This sets `DATABASE_URL` and `DATABASE_URL_UNPOOLED` for you.
-5. Project → Settings → Environment Variables: add everything from `.env.example`. Generate the two secrets with:
+Your repo is **already connected to a Vercel project** (`ask-rank`, which currently serves the old demo from `main`), so you don't need to import it again.
+
+1. Vercel → **upgrade to Pro ($20/month)** before you take money: Vercel's Hobby plan is for non-commercial use only.
+   The weekly-monitor job runs once a day (03:17 UTC) and handles about 8 stores per run. Once you pass ~50 tracked stores, change the schedule in `vercel.json` to hourly (`"17 * * * *"`; Pro only).
+2. Project `ask-rank` → Storage → **Create Database → Neon (Postgres)**, connected to Production and Preview. This sets `DATABASE_URL` and `DATABASE_URL_UNPOOLED` for you.
+3. Project → Settings → Environment Variables: add everything from `.env.example`. Generate the two secrets with:
    ```
    openssl rand -hex 32
    ```
    one for `AUTH_SECRET` and one for `CRON_SECRET`.
-6. Deploy. The build runs the database migrations automatically.
-7. Settings → Domains: add your domain and set the DNS records Vercel shows.
-8. Settings → Functions: confirm **Fluid compute** is on (it is by default on new projects). Scans run up to 5 minutes in the background.
-9. Open `https://YOUR-DOMAIN/api/health?key=YOUR_CRON_SECRET`. It lists every setting as present or missing (never the values). Fix anything missing, then redeploy.
+4. Merge pull request #2 (`deployment-ready` → `main`). Vercel then builds production and runs the database migrations automatically.
+   - If you merge **before** step 2, the production build stops with "DATABASE_URL is not set" and the old demo stays live. Nothing breaks; add the database and redeploy.
+   - Preview builds of branches work without a database; their pages that need data show an error until one is connected.
+5. Settings → Domains: add your domain and set the DNS records Vercel shows.
+6. Settings → Functions: confirm **Fluid compute** is on (it is by default on new projects). Scans run up to 5 minutes in the background.
+7. Open `https://YOUR-DOMAIN/api/health?key=YOUR_CRON_SECRET`. It lists every setting as present or missing (never the values). Fix anything missing, then redeploy.
 
 ## 4. Check the AI results by eye (15 minutes) before anyone pays
 
@@ -106,11 +109,6 @@ The engine and payment code was checked field by field against each provider's o
 3. Make one real ₹1,499 / $19 purchase yourself and refund it from the Dodo dashboard.
 
 ---
-
-## GitHub access (needed before I can push)
-
-This session could clone the repo but **pushes are refused**: the Claude GitHub App doesn't have access to `Vpcodes11/Ask-Rank`.
-Fix: go to https://claude.ai/connect-github, reconnect GitHub, and make sure the Claude app is installed on `Ask-Rank`. Then tell me and I'll push the `deployment-ready` branch.
 
 ## What was tested
 
